@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>بوابة ولي الأمر - رَقِـيـبْ Enterprise</title>
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+  <style>
+    * { font-family: 'Cairo', system-ui, -apple-system, sans-serif; }
+    body { background-color: #0b0f19; color: #f8fafc; }
+
+    .glass-card {
+      background: rgba(15, 23, 42, 0.75);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .luxury-gradient {
+      background: linear-gradient(135deg, #059669 0%, #065f46 100%);
+    }
+
+    .btn-press { transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1); }
+    .btn-press:active { transform: scale(0.96); }
+
+    .spinner {
+      border: 3px solid rgba(255, 255, 255, 0.15);
+      border-radius: 50%;
+      border-top-color: #34d399;
+      width: 20px;
+      height: 20px;
+      animation: spin 0.7s linear infinite;
+      display: inline-block;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    ::-webkit-scrollbar { width: 4px; height: 4px; }
+    ::-webkit-scrollbar-track { background: #0b0f19; }
+    ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col antialiased selection:bg-emerald-500 selection:text-white">
+
+  <!-- OVERLAY LOADER -->
+  <div id="loader" class="hidden fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 flex flex-col items-center justify-center text-white">
+    <div class="spinner mb-3"></div>
+    <div id="loaderText" class="text-xs font-bold text-slate-300">جاري الاستعلام من السحابة...</div>
+  </div>
+
+  <!-- 1. LOGIN SCREEN -->
+  <div id="parentLoginScreen" class="fixed inset-0 bg-[#090d16] z-40 flex items-center justify-center p-4">
+    <div class="glass-card rounded-[32px] p-8 w-full max-w-sm shadow-2xl border border-white/10 text-center space-y-6">
+      <div>
+        <div class="w-16 h-16 rounded-2xl luxury-gradient flex items-center justify-center text-white text-2xl mx-auto shadow-lg shadow-emerald-500/25 mb-3">
+          <i class="fa-solid fa-user-shield"></i>
+        </div>
+        <h2 class="text-2xl font-black text-white">بوابة ولي الأمر</h2>
+        <p class="text-xs text-slate-400 mt-1 font-medium">تابع مستوى وحضور ومصروفات ابنك لحظياً</p>
+      </div>
+
+      <form id="parentLoginForm" class="space-y-4 text-right">
+        <div>
+          <label class="block text-xs font-bold text-slate-300 mb-1">كود الطالب الرقمي *</label>
+          <input type="number" id="loginStudentId" required placeholder="مثال: 1001" class="w-full p-3.5 border border-slate-700 rounded-xl bg-slate-900/80 text-white font-bold text-xs md:text-sm outline-none focus:border-emerald-500 transition text-center tracking-wider font-mono">
+        </div>
+        <div>
+          <label class="block text-xs font-bold text-slate-300 mb-1">رقم هاتف ولي الأمر (للتأكيد) *</label>
+          <input type="tel" id="loginParentPhone" required placeholder="010..." class="w-full p-3.5 border border-slate-700 rounded-xl bg-slate-900/80 text-white font-bold text-xs md:text-sm outline-none focus:border-emerald-500 transition text-center tracking-wider font-mono">
+        </div>
+
+        <button type="submit" class="w-full luxury-gradient hover:opacity-95 text-white font-bold py-3.5 rounded-xl shadow-lg shadow-emerald-600/30 transition text-xs md:text-sm btn-press flex items-center justify-center gap-2">
+          <span>دخول لوحة المتابعة</span>
+          <i class="fa-solid fa-arrow-left text-xs"></i>
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- 2. MAIN PARENT DASHBOARD -->
+  <div id="parentApp" class="hidden flex-1 flex flex-col max-w-3xl w-full mx-auto p-4 md:p-6 space-y-5 pb-16">
+    
+    <!-- HEADER -->
+    <header class="glass-card p-4 md:p-5 rounded-3xl flex justify-between items-center border border-white/10 shadow-lg">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl luxury-gradient flex items-center justify-center text-white text-lg font-bold shadow-md shadow-emerald-500/20">
+          <i class="fa-solid fa-shield-halved"></i>
+        </div>
+        <div>
+          <h1 class="font-black text-sm md:text-base text-white" id="headerStudentName">اسم الطالب</h1>
+          <span class="text-[10px] text-emerald-400 font-bold flex items-center gap-1">
+            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+            متابعة إشرافية لمعلم المادة: <strong id="headerTeacherName">-</strong>
+          </span>
+        </div>
+      </div>
+      <button onclick="logoutParent()" class="text-xs bg-rose-500/10 text-rose-300 hover:bg-rose-500/20 px-3 py-1.5 rounded-xl font-bold transition btn-press flex items-center gap-1.5">
+        <i class="fa-solid fa-arrow-right-from-bracket"></i> خروج
+      </button>
+    </header>
+
+    <!-- STATS OVERVIEW -->
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+      <div class="glass-card p-4 rounded-2xl border border-white/10 text-center">
+        <div class="text-slate-400 text-[11px] font-semibold mb-1">نسبة الحضور</div>
+        <div id="statAttendanceRate" class="text-xl md:text-2xl font-black text-emerald-400">0%</div>
+      </div>
+      <div class="glass-card p-4 rounded-2xl border border-white/10 text-center">
+        <div class="text-slate-400 text-[11px] font-semibold mb-1">الامتحانات المرصودة</div>
+        <div id="statExamsCount" class="text-xl md:text-2xl font-black text-purple-400">0</div>
+      </div>
+      <div class="glass-card p-4 rounded-2xl border border-white/10 text-center">
+        <div class="text-slate-400 text-[11px] font-semibold mb-1">إجمالي المدفوعات</div>
+        <div id="statTotalPaid" class="text-xl md:text-2xl font-black text-blue-400">0 ج.م</div>
+      </div>
+      <div class="glass-card p-4 rounded-2xl border border-white/10 text-center">
+        <div class="text-slate-400 text-[11px] font-semibold mb-1">المتبقي المستحق</div>
+        <div id="statTotalRemaining" class="text-xl md:text-2xl font-black text-rose-400">0 ج.م</div>
+      </div>
+    </div>
+
+    <!-- TABS NAVIGATION -->
+    <nav class="flex bg-slate-900/80 p-1.5 rounded-2xl border border-slate-800 gap-1.5 text-xs font-bold text-slate-400">
+      <button onclick="switchParentTab('attendance')" class="parent-nav-btn flex-1 py-2.5 rounded-xl text-white bg-emerald-600 shadow transition" data-tab="attendance">
+        <i class="fa-solid fa-clipboard-user ml-1"></i> الحضور والغياب
+      </button>
+      <button onclick="switchParentTab('exams')" class="parent-nav-btn flex-1 py-2.5 rounded-xl hover:text-white transition" data-tab="exams">
+        <i class="fa-solid fa-file-pen ml-1"></i> درجات الامتحانات
+      </button>
+      <button onclick="switchParentTab('payments')" class="parent-nav-btn flex-1 py-2.5 rounded-xl hover:text-white transition" data-tab="payments">
+        <i class="fa-solid fa-receipt ml-1"></i> السجل المالي
+      </button>
+    </nav>
+
+    <!-- 1. ATTENDANCE TAB -->
+    <section id="p-tab-attendance" class="parent-tab-content active space-y-3">
+      <h3 class="font-black text-sm text-white px-1">سجل حضور وغياب الطالب التفصيلي</h3>
+      <div id="parentAttendanceList" class="space-y-2 text-xs">
+        <p class="text-slate-500 text-center py-6">جاري جلب سجل الحضور...</p>
+      </div>
+    </section>
+
+    <!-- 2. EXAMS TAB -->
+    <section id="p-tab-exams" class="parent-tab-content space-y-3 hidden">
+      <h3 class="font-black text-sm text-white px-1">درجات الكويزات والامتحانات الشهرية</h3>
+      <div id="parentExamsList" class="space-y-2 text-xs">
+        <p class="text-slate-500 text-center py-6">جاري جلب درجات الامتحانات...</p>
+      </div>
+    </section>
+
+    <!-- 3. PAYMENTS TAB -->
+    <section id="p-tab-payments" class="parent-tab-content space-y-3 hidden">
+      <h3 class="font-black text-sm text-white px-1">سندات القبض وكشف الحساب المالي</h3>
+      <div id="parentPaymentsList" class="space-y-2 text-xs">
+        <p class="text-slate-500 text-center py-6">جاري جلب السجل المالي...</p>
+      </div>
+    </section>
+
+  </div>
+
+  <!-- SCRIPT -->
+  <script type="module">
+    import { dbParentLogin, dbGetParentWorkspace } from "./firebase-engine.js";
+
+    let parentSession = JSON.parse(localStorage.getItem("raqib_parent_session") || "null");
+    let workspaceData = null;
+
+    window.logoutParent = logoutParent;
+    window.switchParentTab = switchParentTab;
+
+    function showLoader(txt = "جاري المعالجة...") {
+      document.getElementById("loaderText").innerText = txt;
+      document.getElementById("loader").classList.remove("hidden");
+    }
+    function hideLoader() { document.getElementById("loader").classList.add("hidden"); }
+
+    window.onload = async () => {
+      if (parentSession && parentSession.studentId) {
+        document.getElementById("parentLoginScreen").classList.add("hidden");
+        await loadParentData(parentSession.studentId, parentSession.parentPhone, parentSession.teacherId);
+      }
+    };
+
+    document.getElementById("parentLoginForm")?.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const sId = document.getElementById("loginStudentId").value.trim();
+      const pPhone = document.getElementById("loginParentPhone").value.trim();
+
+      if (!sId || !pPhone) {
+        alert("⚠️ يرجى إدخال كود الطالب ورقم هاتف ولي الأمر!");
+        return;
+      }
+
+      showLoader("جاري التحقق من بيانات ولي الأمر...");
+
+      try {
+        const res = await dbParentLogin(sId, pPhone);
+        if (res.status === "success") {
+          parentSession = { studentId: sId, parentPhone: pPhone, teacherId: res.teacherId };
+          localStorage.setItem("raqib_parent_session", JSON.stringify(parentSession));
+          document.getElementById("parentLoginScreen").classList.add("hidden");
+          await loadParentData(sId, pPhone, res.teacherId);
+        } else {
+          alert(res.message || "❌ بيانات الدخول غير صحيحة، تأكد من كود الطالب ورقم ولي الأمر المسجل.");
+        }
+      } catch (err) {
+        alert("حدث خطأ أثناء الاتصال بالسحابة.");
+      } finally {
+        hideLoader();
+      }
+    });
+
+    async function loadParentData(studentId, parentPhone, teacherId) {
+      showLoader("جاري جلب تفاصيل بيانات الطالب...");
+      try {
+        const res = await dbGetParentWorkspace(teacherId, studentId);
+        if (res.status === "success") {
+          workspaceData = res;
+          renderParentDashboard();
+          document.getElementById("parentApp").classList.remove("hidden");
+        } else {
+          alert("تعذر جلب البيانات.");
+          logoutParent();
+        }
+      } catch (e) {
+        alert("خطأ في الاتصال.");
+      } finally {
+        hideLoader();
+      }
+    }
+
+    function renderParentDashboard() {
+      if (!workspaceData) return;
+      const { student, attendance, exams, payments } = workspaceData;
+
+      document.getElementById("headerStudentName").innerText = student.name || "الطالب";
+      document.getElementById("headerTeacherName").innerText = workspaceData.teacherName || "أستاذ المادة";
+
+      // الإحصائيات
+      const totalAtt = attendance.length;
+      const presentAtt = attendance.filter(a => a.status === "Present").length;
+      const attRate = totalAtt > 0 ? Math.round((presentAtt / totalAtt) * 100) : 0;
+      document.getElementById("statAttendanceRate").innerText = `${attRate}%`;
+      document.getElementById("statExamsCount").innerText = exams.length;
+
+      const totalPaid = payments.reduce((sum, p) => sum + Number(p.amountPaid || 0), 0);
+      const totalRem = payments.reduce((sum, p) => sum + Number(p.remaining || 0), 0);
+      document.getElementById("statTotalPaid").innerText = `${totalPaid} ج.م`;
+      document.getElementById("statTotalRemaining").innerText = `${totalRem} ج.م`;
+
+      // 1. الحضور والغياب
+      const attContainer = document.getElementById("parentAttendanceList");
+      if (attendance.length === 0) {
+        attContainer.innerHTML = '<p class="text-slate-500 text-center py-6">لا توجد سجلات حضور مسجلة حتى الآن.</p>';
+      } else {
+        attContainer.innerHTML = attendance.map(a => `
+          <div class="glass-card p-3 rounded-2xl flex justify-between items-center">
+            <div>
+              <div class="font-bold text-white text-xs">مجموعة: ${a.groupName}</div>
+              <div class="text-[10px] text-slate-400">📅 ${a.date} | ⏰ ${a.time || ''}</div>
+            </div>
+            <span class="px-2.5 py-1 rounded-xl font-bold text-xs ${a.status === 'Present' ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' : 'bg-rose-500/20 text-rose-400 border border-rose-500/30'}">
+              ${a.status === 'Present' ? 'حاضر ✅' : 'غائب ❌'}
+            </span>
+          </div>
+        `).join('');
+      }
+
+      // 2. الامتحانات
+      const examsContainer = document.getElementById("parentExamsList");
+      if (exams.length === 0) {
+        examsContainer.innerHTML = '<p class="text-slate-500 text-center py-6">لا توجد امتحانات مرصودة حتى الآن.</p>';
+      } else {
+        examsContainer.innerHTML = exams.map(e => {
+          const score = e.score !== undefined ? e.score : "لم يرصد";
+          return `
+            <div class="glass-card p-3.5 rounded-2xl flex justify-between items-center">
+              <div>
+                <div class="font-bold text-white text-sm">${e.title}</div>
+                <div class="text-[10px] text-slate-400">📅 ${e.date || ''}</div>
+              </div>
+              <div class="text-left">
+                <span class="font-black text-sm text-purple-400">${score}</span>
+                <span class="text-[10px] text-slate-400">/ ${e.maxScore} درجة</span>
+              </div>
+            </div>
+          `;
+        }).join('');
+      }
+
+      // 3. السجل المالي
+      const payContainer = document.getElementById("parentPaymentsList");
+      if (payments.length === 0) {
+        payContainer.innerHTML = '<p class="text-slate-500 text-center py-6">لا توجد سندات قبض مالية مسجلة.</p>';
+      } else {
+        payContainer.innerHTML = payments.map(p => `
+          <div class="glass-card p-3.5 rounded-2xl space-y-1.5">
+            <div class="flex justify-between items-center border-b border-slate-800 pb-2">
+              <div class="font-bold text-white text-xs">إيصال: [${p.receiptId}]</div>
+              <span class="font-black text-emerald-400 text-xs">${p.amountPaid} ج.م</span>
+            </div>
+            <div class="flex justify-between text-[11px] text-slate-400">
+              <div>نوع السداد: <strong class="text-slate-200">${p.paymentType}</strong></div>
+              <div>المتبقي: <strong class="text-rose-400">${p.remaining || 0} ج.م</strong></div>
+            </div>
+          </div>
+        `).join('');
+      }
+    }
+
+    function switchParentTab(tabId) {
+      document.querySelectorAll(".parent-tab-content").forEach(el => el.classList.add("hidden"));
+      document.getElementById(`p-tab-${tabId}`)?.classList.remove("hidden");
+
+      document.querySelectorAll(".parent-nav-btn").forEach(btn => {
+        if (btn.dataset.tab === tabId) {
+          btn.className = "parent-nav-btn flex-1 py-2.5 rounded-xl text-white bg-emerald-600 shadow transition";
+        } else {
+          btn.className = "parent-nav-btn flex-1 py-2.5 rounded-xl hover:text-white transition";
+        }
+      });
+    }
+
+    function logoutParent() {
+      localStorage.removeItem("raqib_parent_session");
+      location.reload();
+    }
+  </script>
+</body>
+</html>

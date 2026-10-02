@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>رَقِـيـبْ Enterprise - المنصة السحابية الرائدة لإدارة التدريس والطلاب</title>
+  
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+  <style>
+    * { font-family: 'Cairo', system-ui, -apple-system, sans-serif; scroll-behavior: smooth; }
+    body { background-color: #0b0f19; color: #f8fafc; }
+
+    .glass-nav {
+      background: rgba(11, 15, 25, 0.85);
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .glass-card {
+      background: rgba(15, 23, 42, 0.65);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .glass-card-light {
+      background: rgba(255, 255, 255, 0.96);
+      backdrop-filter: blur(16px);
+      border: 1px solid rgba(226, 232, 240, 0.9);
+      color: #0f172a;
+    }
+
+    .luxury-gradient {
+      background: linear-gradient(135deg, #4f46e5 0%, #312e81 100%);
+    }
+
+    .glow-bg {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(120px);
+      z-index: 0;
+      opacity: 0.35;
+    }
+
+    .btn-press { transition: all 0.18s cubic-bezier(0.4, 0, 0.2, 1); }
+    .btn-press:active { transform: scale(0.96); }
+
+    .spinner {
+      border: 3px solid rgba(255, 255, 255, 0.2);
+      border-radius: 50%;
+      border-top-color: #6366f1;
+      width: 20px;
+      height: 20px;
+      animation: spin 0.7s linear infinite;
+      display: inline-block;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+  </style>
+</head>
+<body class="antialiased selection:bg-indigo-500 selection:text-white relative overflow-x-hidden">
+
+  <!-- GLOWING BACKGROUND ELEMENTS -->
+  <div class="glow-bg w-96 h-96 bg-indigo-600 top-10 -right-20"></div>
+  <div class="glow-bg w-[500px] h-[500px] bg-violet-700 top-[600px] -left-32"></div>
+
+  <!-- NAVIGATION BAR -->
+  <header class="fixed top-0 left-0 right-0 z-50 glass-nav">
+    <div class="max-w-7xl mx-auto px-4 md:px-8 h-20 flex justify-between items-center">
+      <a href="#" class="flex items-center gap-3">
+        <div class="w-11 h-11 rounded-2xl luxury-gradient flex items-center justify-center text-white text-xl font-black shadow-lg shadow-indigo-500/25">
+          <i class="fa-solid fa-shield-halved"></i>
+        </div>
+        <div>
+          <span class="text-xl font-black tracking-wider text-white">رَقِـيـبْ</span>
+          <span class="block text-[9px] text-indigo-400 font-bold uppercase tracking-widest leading-none">Enterprise SaaS</span>
+        </div>
+      </a>
+
+      <nav class="hidden md:flex items-center gap-8 text-xs font-bold text-slate-300">
+        <a href="#services" class="hover:text-indigo-400 transition">الخدمات</a>
+        <a href="#pricing" class="hover:text-indigo-400 transition">التسعير ونموذج العمل</a>
+        <a href="#apply" class="hover:text-indigo-400 transition">انضمام المعلمين</a>
+        <a href="#contact" class="hover:text-indigo-400 transition">تواصل معنا</a>
+      </nav>
+
+      <div class="flex items-center gap-2.5">
+        <a href="teacher.html" class="bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold px-4 py-2.5 rounded-xl text-xs transition border border-slate-700">
+          دخول الأستاذ
+        </a>
+        <a href="#apply" class="luxury-gradient hover:opacity-95 text-white font-bold px-4 py-2.5 rounded-xl text-xs shadow-lg shadow-indigo-600/30 transition btn-press">
+          طلب حساب جديد 🚀
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- HERO SECTION -->
+  <section class="relative pt-36 pb-20 md:pt-48 md:pb-32 px-4 md:px-8 max-w-7xl mx-auto text-center z-10 space-y-7">
+    <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-indigo-500/10 border border-indigo-500/25 text-indigo-300 text-xs font-bold mb-2">
+      <span class="w-2 h-2 rounded-full bg-indigo-400 animate-ping"></span>
+      منظومة رَقِـيـبْ الذكية لإدارة التعليم والطلاب
+    </div>
+
+    <h1 class="text-3xl md:text-6xl font-black tracking-tight leading-tight max-w-4xl mx-auto">
+      منظومة رقمية صُممت لتمكين <span class="bg-clip-text text-transparent bg-gradient-to-r from-indigo-400 via-violet-300 to-white">المعلم الرائد</span>
+    </h1>
+
+    <p class="text-sm md:text-base text-slate-400 max-w-2xl mx-auto leading-relaxed font-normal">
+      تخلص من السجلات الورقية وأدر مجموعاتك، حضور الطلاب بالـ QR Code، الامتحانات، المذكرات، ومستحقاتك في منصة واحدة سريعة ومدعومة بسحابة Firebase الفورية بنظام الدفع مقابل الاستهلاك.
+    </p>
+
+    <div class="flex items-center justify-center pt-4">
+      <a href="#apply" class="luxury-gradient text-white font-black px-10 py-4 rounded-2xl text-sm shadow-xl shadow-indigo-600/30 transition btn-press flex items-center justify-center gap-2">
+        <i class="fa-solid fa-chalkboard-user"></i> ابدأ كمعلم الآن
+      </a>
+    </div>
+
+    <div class="pt-12 grid grid-cols-2 md:grid-cols-4 gap-4 max-w-4xl mx-auto text-right">
+      <div class="glass-card p-4 rounded-2xl">
+        <div class="text-indigo-400 text-lg font-black mb-1">دفع بالاستهلاك</div>
+        <div class="text-[11px] text-slate-400">نظام مرن يعتمد على عدد طلابك النشطين شهرياً</div>
+      </div>
+      <div class="glass-card p-4 rounded-2xl">
+        <div class="text-emerald-400 text-lg font-black mb-1">نظام الشرائح</div>
+        <div class="text-[11px] text-slate-400">تكلفة تبدأ من 1.55 جنيه للطالب تنخفض مع زيادة العدد</div>
+      </div>
+      <div class="glass-card p-4 rounded-2xl">
+        <div class="text-violet-400 text-lg font-black mb-1">مسح لحظي</div>
+        <div class="text-[11px] text-slate-400">تحضير بالـ QR Code ورسائل واتساب تلقائية</div>
+      </div>
+      <div class="glass-card p-4 rounded-2xl">
+        <div class="text-blue-400 text-lg font-black mb-1">سحابة فورية</div>
+        <div class="text-[11px] text-slate-400">مزامنة مباشرة عبر Realtime Database</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SERVICES SECTION -->
+  <section id="services" class="py-20 px-4 md:px-8 max-w-7xl mx-auto relative z-10 space-y-12">
+    <div class="text-center space-y-3">
+      <span class="text-xs text-indigo-400 font-bold uppercase tracking-widest">إمكانيات المنظومة</span>
+      <h2 class="text-2xl md:text-4xl font-black">أدوات متكاملة تدير عملك بكل احترافية</h2>
+      <p class="text-xs md:text-sm text-slate-400 max-w-xl mx-auto">كل ما يحتاجه المعلم لإدارة مجموعاته باحترافية وبأعلى سرعة</p>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div class="glass-card p-7 rounded-3xl space-y-4 hover:border-indigo-500/40 transition-all duration-300">
+        <div class="w-12 h-12 rounded-2xl bg-indigo-500/10 text-indigo-400 flex items-center justify-center text-xl">
+          <i class="fa-solid fa-qrcode"></i>
+        </div>
+        <h3 class="text-lg font-black text-white">الحضور والبطاقة الذكية</h3>
+        <p class="text-xs text-slate-400 leading-relaxed">
+          توليد كود QR فريد لكل طالب، ومسحه بكاميرا الهاتف أو أجهزة الباركود، مع إرسال تنبيه فوري لولي الأمر عبر الواتساب.
+        </p>
+      </div>
+
+      <div class="glass-card p-7 rounded-3xl space-y-4 hover:border-violet-500/40 transition-all duration-300">
+        <div class="w-12 h-12 rounded-2xl bg-violet-500/10 text-violet-400 flex items-center justify-center text-xl">
+          <i class="fa-solid fa-file-signature"></i>
+        </div>
+        <h3 class="text-lg font-black text-white">الامتحانات ورصد الدرجات</h3>
+        <p class="text-xs text-slate-400 leading-relaxed">
+          تسجيل درجات الكويزات، ورصد النتائج مباشرة على السحابة، ومشاركتها مع ولي الأمر بدقة وسهولة.
+        </p>
+      </div>
+
+      <div class="glass-card p-7 rounded-3xl space-y-4 hover:border-emerald-500/40 transition-all duration-300">
+        <div class="w-12 h-12 rounded-2xl bg-emerald-500/10 text-emerald-400 flex items-center justify-center text-xl">
+          <i class="fa-solid fa-video"></i>
+        </div>
+        <h3 class="text-lg font-black text-white">أرشيف الحصص المحصنة</h3>
+        <p class="text-xs text-slate-400 leading-relaxed">
+          مشاركة شروحات الفيديو مع درع حماية متطور يمنع النقر أو الخروج إلى منصات أخرى في المشغل العادي أو ملء الشاشة.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- PRICING SECTION -->
+  <section id="pricing" class="py-20 px-4 md:px-8 max-w-7xl mx-auto relative z-10 space-y-12">
+    <div class="text-center space-y-3">
+      <span class="text-xs text-indigo-400 font-bold uppercase tracking-widest">نموذج الاشتراك</span>
+      <h2 class="text-2xl md:text-4xl font-black">شفافية كاملة: ادفع مقابل استهلاكك الفعلي</h2>
+      <p class="text-xs md:text-sm text-slate-400 max-w-xl mx-auto">المعلم شريك نجاح؛ لذلك صممنا نموذج تسعير يعتمد على عدد طلابك النشطين شهرياً بنظام الشرائح المرن</p>
+    </div>
+
+    <!-- تم التعديل لتكون بطاقة واحدة في المنتصف بنظام الشرائح -->
+    <div class="grid grid-cols-1 max-w-2xl mx-auto items-stretch">
+      <div class="glass-card p-8 md:p-10 rounded-[32px] border-2 border-indigo-500/40 relative flex flex-col justify-between space-y-6">
+        <div class="space-y-4">
+          <span class="text-[10px] bg-indigo-500/20 text-indigo-300 font-black px-3 py-1 rounded-full uppercase">حساب المعلم المستقل</span>
+          
+          <p class="text-xs md:text-sm text-slate-300 font-semibold mb-4 text-center">تكلفة الطالب الواحد شهرياً حسب الشريحة (جنيه مصري):</p>
+          
+          <div class="grid grid-cols-2 gap-4 text-center mb-6">
+            <div class="p-3 bg-slate-900/50 rounded-xl border border-white/10">
+              <div class="text-xs text-slate-400 mb-1">حتى 300 طالب</div>
+              <div class="text-2xl font-black text-white">2.34 <span class="text-xs text-indigo-300 font-normal">ج.م</span></div>
+            </div>
+            <div class="p-3 bg-slate-900/50 rounded-xl border border-white/10">
+              <div class="text-xs text-slate-400 mb-1">حتى 500 طالب</div>
+              <div class="text-2xl font-black text-white">2.00 <span class="text-xs text-indigo-300 font-normal">ج.م</span></div>
+            </div>
+            <div class="p-3 bg-slate-900/50 rounded-xl border border-white/10">
+              <div class="text-xs text-slate-400 mb-1">حتى 1000 طالب</div>
+              <div class="text-2xl font-black text-white">1.80 <span class="text-xs text-indigo-300 font-normal">ج.م</span></div>
+            </div>
+            <div class="p-3 bg-indigo-600/30 rounded-xl border border-indigo-500/40 shadow-inner">
+              <div class="text-xs text-indigo-200 mb-1">فوق 1000 طالب</div>
+              <div class="text-2xl font-black text-emerald-400">1.55 <span class="text-xs text-emerald-200 font-normal">ج.م</span></div>
+            </div>
+          </div>
+          
+          <ul class="space-y-3 text-xs text-slate-300 pt-3 border-t border-slate-800">
+             <li class="flex items-center gap-2.5"><i class="fa-solid fa-check text-emerald-400"></i> يتم الخصم شهرياً من محفظتك الرقمية (Wallet)</li>
+            <li class="flex items-center gap-2.5"><i class="fa-solid fa-check text-emerald-400"></i> نظام الحضور المباشر وقارئ الباركود والـ QR</li>
+            <li class="flex items-center gap-2.5"><i class="fa-solid fa-check text-emerald-400"></i> رصد الامتحانات وأرشيف الفيديوهات والمذكرات</li>
+            <li class="flex items-center gap-2.5"><i class="fa-solid fa-check text-emerald-400"></i> اتصال سحابي فوري عبر Firebase</li>
+          </ul>
+        </div>
+
+        <a href="#apply" class="w-full luxury-gradient text-white text-center font-bold py-3.5 rounded-xl text-xs transition btn-press block shadow-lg mt-4">
+          ابدأ حسابك كمعلم الآن
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- TEACHER ONBOARDING APPLICATION FORM (بدون حقل عدد الطلاب) -->
+  <section id="apply" class="py-20 px-4 md:px-8 max-w-3xl mx-auto relative z-10 space-y-8">
+    <div class="text-center space-y-2">
+      <span class="text-xs text-indigo-400 font-bold uppercase tracking-widest">انضم لشركاء النجاح</span>
+      <h2 class="text-2xl md:text-4xl font-black">طلب تفعيل حساب أستاذ جديد</h2>
+      <p class="text-xs md:text-sm text-slate-400">سجل بياناتك وسيتم مراجعة طلبك وإصدار كود المعلم الخاص بك فوراً</p>
+    </div>
+
+    <div class="glass-card-light rounded-[32px] p-6 md:p-10 shadow-2xl space-y-5">
+      <form id="teacherAppForm" class="space-y-4 text-right">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs font-bold text-slate-700 mb-1">الاسم الثلاثي واللقب *</label>
+            <input type="text" id="appTeacherName" required placeholder="مثال: أستاذ حسام حسن" class="w-full p-3 border border-slate-200 rounded-xl text-xs md:text-sm bg-slate-50 font-bold outline-none focus:bg-white focus:border-indigo-600 transition">
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-700 mb-1">المادة الدراسية *</label>
+            <input type="text" id="appTeacherSubject" required placeholder="مثال: كيمياء ثانوية عامة" class="w-full p-3 border border-slate-200 rounded-xl text-xs md:text-sm bg-slate-50 font-bold outline-none focus:bg-white focus:border-indigo-600 transition">
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs font-bold text-slate-700 mb-1">المحافظة *</label>
+            <select id="appTeacherGov" required class="w-full p-3 border border-slate-200 rounded-xl text-xs md:text-sm bg-slate-50 font-bold outline-none focus:bg-white focus:border-indigo-600 transition">
+              <option value="">-- اختر المحافظة --</option>
+              <option value="الإسكندرية">الإسكندرية</option>
+              <option value="القاهرة">القاهرة</option>
+              <option value="الجيزة">الجيزة</option>
+              <option value="البحيرة">البحيرة</option>
+              <option value="الغربية">الغربية</option>
+              <option value="الدقهلية">الدقهلية</option>
+              <option value="الشرقية">الشرقية</option>
+              <option value="أخرى">محافظة أخرى</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-700 mb-1">المدينة / المنطقة *</label>
+            <input type="text" id="appTeacherArea" required placeholder="مثال: سموحة / مصر الجديدة" class="w-full p-3 border border-slate-200 rounded-xl text-xs md:text-sm bg-slate-50 font-bold outline-none focus:bg-white focus:border-indigo-600 transition">
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-slate-700 mb-1">رقم الهاتف والواتساب *</label>
+          <input type="tel" id="appTeacherPhone" required placeholder="010..." class="w-full p-3 border border-slate-200 rounded-xl text-xs md:text-sm bg-slate-50 font-bold outline-none focus:bg-white focus:border-indigo-600 transition">
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-slate-700 mb-1">ملاحظات خاصة (اختياري)</label>
+          <input type="text" id="appTeacherNotes" placeholder="أي تفاصيل تود إعلام الإدارة بها..." class="w-full p-3 border border-slate-200 rounded-xl text-xs md:text-sm bg-slate-50 outline-none focus:bg-white focus:border-indigo-600 transition">
+        </div>
+
+        <button type="submit" id="submitAppBtn" class="w-full luxury-gradient text-white font-black py-4 rounded-xl shadow-xl shadow-indigo-600/30 text-xs md:text-sm transition btn-press flex items-center justify-center gap-2">
+          <span>إرسال طلب الانضمام إلى السحابة</span>
+          <i class="fa-solid fa-paper-plane"></i>
+        </button>
+      </form>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer id="contact" class="border-t border-slate-800/80 bg-slate-950/80 pt-16 pb-12 px-4 md:px-8 relative z-10 text-slate-400 text-xs">
+    <div class="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
+      <div class="space-y-3 text-right">
+        <div class="flex items-center gap-3">
+          <div class="w-9 h-9 rounded-xl luxury-gradient flex items-center justify-center text-white text-base font-black">
+            <i class="fa-solid fa-shield-halved"></i>
+          </div>
+          <span class="text-lg font-black text-white">رَقِـيـبْ Enterprise</span>
+        </div>
+        <p class="text-slate-400 text-xs leading-relaxed">
+          المنصة السحابية لإدارة المعلمين والطلاب، ترتكز على قواعد بيانات Realtime فائقة السرعة لتحقيق أعلى استقرار وأقل استهلاك للباندويث.
+        </p>
+      </div>
+
+      <div class="space-y-3 text-right">
+        <h4 class="font-bold text-white text-sm">روابط الوصول</h4>
+        <ul class="space-y-2">
+          <li><a href="teacher.html" class="hover:text-indigo-400 transition">بوابة دخول المعلم</a></li>
+          <li><a href="student.html" class="hover:text-indigo-400 transition">بوابة دخول الطالب</a></li>
+          <li><a href="admin.html" class="hover:text-indigo-400 transition">مركز قيادة الإدارة</a></li>
+        </ul>
+      </div>
+
+      <div class="space-y-3 text-right">
+        <h4 class="font-bold text-white text-sm">الدعم الفني</h4>
+        <p class="text-xs text-slate-400">الدعم متواجد على مدار اليوم عبر واتساب</p>
+        <div class="flex items-center gap-3 pt-1">
+          <a href="https://wa.me/201000000000" target="_blank" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl font-bold flex items-center gap-2 transition btn-press">
+            <i class="fa-brands fa-whatsapp text-base"></i> واتساب الدعم الفني
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <div class="max-w-7xl mx-auto border-t border-slate-800/80 pt-6 flex flex-col md:flex-row justify-between items-center gap-4 text-[11px] text-slate-500">
+      <div>جميع الحقوق محفوظة &copy; 2026 رَقِـيـبْ Enterprise.</div>
+      <div>مدعوم ببنية Firebase السحابية فائقة السرعة.</div>
+    </div>
+  </footer>
+
+  <!-- SCRIPT -->
+  <script type="module">
+    import { dbSubmitTeacherApplication } from "./firebase-engine.js";
+
+    document.getElementById("teacherAppForm")?.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const btn = document.getElementById("submitAppBtn");
+      btn.disabled = true;
+      btn.innerHTML = '<span class="spinner"></span> جاري إرسال الطلب إلى Firebase...';
+
+      const payload = {
+        name: document.getElementById("appTeacherName").value.trim(),
+        subject: document.getElementById("appTeacherSubject").value.trim(),
+        governorate: document.getElementById("appTeacherGov").value,
+        area: document.getElementById("appTeacherArea").value.trim(),
+        phone: document.getElementById("appTeacherPhone").value.trim(),
+        notes: document.getElementById("appTeacherNotes").value.trim()
+      };
+
+      try {
+        const res = await dbSubmitTeacherApplication(payload);
+        if (res && res.status === "success") {
+          alert(`🎉 تم استلام طلبك بنجاح برقم: [${res.requestId}]\nسيتم مراجعة الطلب واعتماده من إدارة رَقِـيـبْ والتواصل معك فوراً.`);
+          e.target.reset();
+        } else {
+          alert("تعذر إرسال الطلب: " + res.message);
+        }
+      } catch (err) {
+        alert("حدث خطأ أثناء الاتصال بالسحابة.");
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = '<span>إرسال طلب الانضمام إلى السحابة</span> <i class="fa-solid fa-paper-plane"></i>';
+      }
+    });
+  </script>
+</body>
+</html>

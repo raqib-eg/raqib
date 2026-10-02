@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>مركز القيادة والتحكم المتقدم - رَقِـيـبْ Enterprise</title>
+  
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+  <style>
+    * { font-family: 'Cairo', system-ui, -apple-system, sans-serif; }
+    body { background-color: #0b0f19; color: #f8fafc; }
+
+    .glass-card {
+      background: rgba(15, 23, 42, 0.85);
+      backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .luxury-gradient {
+      background: linear-gradient(135deg, #4f46e5 0%, #312e81 100%);
+    }
+
+    .btn-press:active { transform: scale(0.96); }
+
+    .spinner {
+      border: 3px solid rgba(255, 255, 255, 0.15);
+      border-radius: 50%;
+      border-top-color: #6366f1;
+      width: 22px;
+      height: 22px;
+      animation: spin 0.7s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .tab-content { display: none; }
+    .tab-content.active { display: block; animation: smoothFade 0.2s ease-out; }
+    @keyframes smoothFade { from { opacity: 0; transform: translateY(3px); } to { opacity: 1; transform: translateY(0); } }
+
+    ::-webkit-scrollbar { width: 5px; height: 5px; }
+    ::-webkit-scrollbar-track { background: #0b0f19; }
+    ::-webkit-scrollbar-thumb { background: #334155; border-radius: 5px; }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col antialiased selection:bg-indigo-500 selection:text-white">
+
+  <!-- LOADER -->
+  <div id="loader" class="hidden fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 flex flex-col items-center justify-center text-white">
+    <div class="spinner mb-3"></div>
+    <div id="loaderText" class="text-xs font-bold text-slate-300">جاري المعالجة السحابية...</div>
+  </div>
+
+  <!-- LOGIN SCREEN -->
+  <div id="loginScreen" class="fixed inset-0 bg-[#090d16] z-40 flex items-center justify-center p-4">
+    <div class="glass-card rounded-[32px] p-8 w-full max-w-sm shadow-2xl border border-white/10 text-center space-y-6">
+      <div>
+        <div class="w-16 h-16 rounded-2xl luxury-gradient flex items-center justify-center text-white text-2xl mx-auto shadow-lg shadow-indigo-500/25 mb-3">
+          <i class="fa-solid fa-shield-halved"></i>
+        </div>
+        <h2 class="text-2xl font-black text-white">إدارة المنظومة المركزية</h2>
+        <p class="text-xs text-slate-400 mt-1 font-mono">Firebase Realtime Core</p>
+      </div>
+
+      <form id="adminLoginForm" class="space-y-4 text-right">
+        <div>
+          <label class="block text-xs font-bold text-slate-300 mb-1">رمز الحماية السري للأدمن</label>
+          <input type="password" id="adminSecretKey" required placeholder="••••••••" class="w-full p-3.5 border border-slate-700 rounded-xl bg-slate-900/80 text-white font-bold text-xs md:text-sm outline-none focus:border-indigo-500 transition text-center tracking-widest font-mono">
+        </div>
+
+        <button type="submit" class="w-full luxury-gradient hover:opacity-95 text-white font-bold py-3.5 rounded-xl shadow-lg shadow-indigo-600/30 transition text-xs md:text-sm btn-press flex items-center justify-center gap-2">
+          <span>دخول لوحة التحكم</span>
+          <i class="fa-solid fa-arrow-left text-xs"></i>
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- MAIN ADMIN APP -->
+  <div id="adminApp" class="hidden flex-1 flex flex-col max-w-6xl w-full mx-auto p-4 md:p-8 space-y-6 pb-20">
+    
+    <!-- HEADER -->
+    <header class="glass-card p-5 rounded-3xl flex justify-between items-center border border-white/10 shadow-lg">
+      <div class="flex items-center gap-3.5">
+        <div class="w-11 h-11 rounded-2xl luxury-gradient flex items-center justify-center text-white text-xl font-bold shadow-md shadow-indigo-500/20">
+          <i class="fa-solid fa-network-wired"></i>
+        </div>
+        <div>
+          <h1 class="font-black text-base md:text-lg text-white">رَقِـيـبْ - مركز القيادة السحابي</h1>
+          <span class="text-[10px] text-emerald-400 font-bold tracking-wider flex items-center gap-1">
+            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+            متصل بـ Firebase Realtime Database (نظام الشرائح)
+          </span>
+        </div>
+      </div>
+      <div class="flex items-center gap-2">
+        <button onclick="repairIndexesAction()" title="إصلاح فهارس الطلاب العالقة تلقائياً" class="text-xs bg-amber-500/10 text-amber-300 hover:bg-amber-500/20 px-3.5 py-2 rounded-xl font-bold transition btn-press flex items-center gap-1.5 border border-amber-500/20">
+          <i class="fa-solid fa-screwdriver-wrench"></i> فحص وإصلاح الفهارس
+        </button>
+        <button onclick="logoutAdmin()" class="text-xs bg-rose-500/10 text-rose-300 hover:bg-rose-500/20 px-4 py-2 rounded-xl font-bold transition btn-press">
+          <i class="fa-solid fa-power-off"></i> خروج
+        </button>
+      </div>
+    </header>
+
+    <!-- STATS OVERVIEW -->
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
+      <div class="glass-card p-4 md:p-5 rounded-2xl border">
+        <div class="text-slate-400 text-xs font-semibold mb-1 flex items-center gap-1.5">
+          <i class="fa-solid fa-chalkboard-user text-indigo-400"></i> إجمالي المعلمين
+        </div>
+        <div id="statTotalTeachers" class="text-2xl md:text-3xl font-black text-white">0</div>
+      </div>
+      <div class="glass-card p-4 md:p-5 rounded-2xl border">
+        <div class="text-slate-400 text-xs font-semibold mb-1 flex items-center gap-1.5">
+          <i class="fa-solid fa-users text-blue-400"></i> إجمالي الطلاب بالمنصة
+        </div>
+        <div id="statTotalStudents" class="text-2xl md:text-3xl font-black text-white">0</div>
+      </div>
+      <div class="glass-card p-4 md:p-5 rounded-2xl border">
+        <div class="text-slate-400 text-xs font-semibold mb-1 flex items-center gap-1.5">
+          <i class="fa-solid fa-wallet text-emerald-400"></i> أرصدة المحافظ النشطة
+        </div>
+        <div id="statActiveWalletsTotal" class="text-2xl md:text-3xl font-black text-emerald-400">0 ج.م</div>
+      </div>
+      <div class="glass-card p-4 md:p-5 rounded-2xl border">
+        <div class="text-slate-400 text-xs font-semibold mb-1 flex items-center gap-1.5">
+          <i class="fa-solid fa-sack-dollar text-amber-400"></i> العوائد المتوقعة شهرياً
+        </div>
+        <div id="statExpectedMonthlyRevenue" class="text-2xl md:text-3xl font-black text-amber-400">0 ج.م</div>
+      </div>
+    </div>
+
+    <!-- TABS -->
+    <nav class="flex bg-slate-900/80 p-1.5 rounded-2xl border border-slate-800 gap-2 text-xs font-bold text-slate-400 max-w-lg">
+      <button onclick="switchAdminTab('teachers')" class="admin-nav-btn flex-1 py-2.5 rounded-xl text-white bg-indigo-600/90 shadow transition" data-tab="teachers">
+        <i class="fa-solid fa-chalkboard-user ml-1"></i> إدارة المعلمين ومحافظهم
+      </button>
+      <button onclick="switchAdminTab('students')" class="admin-nav-btn flex-1 py-2.5 rounded-xl hover:text-white transition" data-tab="students">
+        <i class="fa-solid fa-users-gear ml-1"></i> إدارة وتفعيل الطلاب
+      </button>
+      <button onclick="switchAdminTab('add-teacher')" class="admin-nav-btn flex-1 py-2.5 rounded-xl hover:text-white transition" data-tab="add-teacher">
+        <i class="fa-solid fa-user-plus ml-1"></i> إنشاء معلّم فوري
+      </button>
+    </nav>
+
+    <!-- 1. TEACHERS LIST TAB -->
+    <section id="tab-teachers" class="tab-content active space-y-4">
+      <div class="flex justify-between items-center">
+        <h2 class="text-base font-black text-white">المعلمون المشتركون ومتابعة الأرصدة والشرائح</h2>
+        <button onclick="loadAdminWorkspace()" class="text-xs bg-slate-800 hover:bg-slate-700 text-slate-300 px-3 py-1.5 rounded-xl font-bold transition flex items-center gap-1.5">
+          <i class="fa-solid fa-rotate-right"></i> تحديث لحظي
+        </button>
+      </div>
+
+      <div id="adminTeachersList" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+        <p class="text-slate-500 text-xs text-center py-8 col-span-full">جاري جلب قائمة المعلمين...</p>
+      </div>
+    </section>
+
+    <!-- 2. STUDENTS MANAGEMENT TAB -->
+    <section id="tab-students" class="tab-content space-y-4">
+      <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+        <div>
+          <h2 class="text-base font-black text-white">إدارة صلاحيات الطلاب وفحص الحالات العالقة</h2>
+          <p class="text-xs text-slate-400 mt-0.5">تفعيل أو إلغاء تفعيل حسابات الطلاب أو نقلهم بين المدرسين</p>
+        </div>
+        <input type="text" id="adminStudentSearch" onkeyup="filterAdminStudents()" placeholder="ابحث بكود الطالب، الاسم، أو الهاتف..." class="p-2.5 px-3 bg-slate-900 border border-slate-700 rounded-xl text-xs font-semibold outline-none text-white w-full sm:w-64">
+      </div>
+
+      <div id="adminStudentsList" class="space-y-2.5">
+        <p class="text-slate-500 text-xs text-center py-8">جاري جلب سجل الطلاب...</p>
+      </div>
+    </section>
+
+    <!-- 3. ADD / APPROVE TEACHER DIRECTLY TAB -->
+    <section id="tab-add-teacher" class="tab-content space-y-4 max-w-xl mx-auto">
+      <div class="glass-card p-6 rounded-3xl border border-white/10 space-y-4">
+        <h3 class="font-black text-base text-white border-b border-slate-800 pb-2.5 flex items-center gap-2">
+          <i class="fa-solid fa-id-badge text-indigo-400"></i> اعتماد وإنشاء حساب معلم جديد فورياً
+        </h3>
+
+        <form id="createTeacherForm" class="space-y-3.5 text-right text-xs">
+          <div>
+            <label class="block font-bold text-slate-300 mb-1">كود المعلم المقترح في المنظومة *</label>
+            <input type="text" id="newTeacherId" required placeholder="مثال: T_102 أو رقم هاتفه" class="w-full p-3 bg-slate-900 border border-slate-700 rounded-xl text-white font-mono font-bold outline-none focus:border-indigo-500">
+          </div>
+          <div>
+            <label class="block font-bold text-slate-300 mb-1">اسم المعلم واللقب *</label>
+            <input type="text" id="newTeacherName" required placeholder="أستاذ محمد إبراهيم" class="w-full p-3 bg-slate-900 border border-slate-700 rounded-xl text-white font-bold outline-none focus:border-indigo-500">
+          </div>
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="block font-bold text-slate-300 mb-1">المادة الدراسية *</label>
+              <input type="text" id="newTeacherSubject" required placeholder="رياضيات / كيمياء" class="w-full p-3 bg-slate-900 border border-slate-700 rounded-xl text-white font-bold outline-none focus:border-indigo-500">
+            </div>
+            <div>
+              <label class="block font-bold text-slate-300 mb-1">المحافظة</label>
+              <input type="text" id="newTeacherGov" placeholder="الإسكندرية" class="w-full p-3 bg-slate-900 border border-slate-700 rounded-xl text-white font-bold outline-none focus:border-indigo-500">
+            </div>
+          </div>
+          <div>
+            <label class="block font-bold text-slate-300 mb-1">رقم هاتف المعلم</label>
+            <input type="text" id="newTeacherPhone" placeholder="010..." class="w-full p-3 bg-slate-900 border border-slate-700 rounded-xl text-white font-bold outline-none focus:border-indigo-500">
+          </div>
+
+          <button type="submit" class="w-full luxury-gradient hover:opacity-95 text-white font-bold py-3.5 rounded-xl shadow-lg transition text-xs btn-press mt-2">
+            اعتماد وتأسيس شجرة المعلم في Firebase 🚀
+          </button>
+        </form>
+      </div>
+    </section>
+
+  </div>
+
+  <!-- نافذة نقل الطالب لمعلم آخر (Transfer Modal) -->
+  <div id="transferStudentModal" class="hidden fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+    <div class="glass-card rounded-3xl p-6 w-full max-w-sm border border-white/10 space-y-4 text-right">
+      <h3 class="font-black text-sm text-white border-b border-slate-800 pb-2">نقل الطالب لمعلم آخر</h3>
+      <p class="text-xs text-slate-400">سيتم نقل سجل الطالب وتحديث الفهرس السريع تلقائياً:</p>
+      <input type="hidden" id="transferStudentId">
+      <input type="hidden" id="transferFromTeacherId">
+      <div>
+        <label class="block text-xs font-bold text-slate-300 mb-1">اختر المعلم الجديد المستهدف:</label>
+        <select id="transferToTeacherSelect" class="w-full p-3 bg-slate-900 border border-slate-700 rounded-xl text-xs text-white outline-none"></select>
+      </div>
+      <div class="flex gap-2 pt-2">
+        <button onclick="confirmTransferStudentAction()" class="w-full luxury-gradient text-white font-bold py-2.5 rounded-xl text-xs btn-press">تأكيد النقل الآن</button>
+        <button onclick="closeTransferModal()" class="w-full bg-slate-800 text-slate-300 py-2.5 rounded-xl text-xs">إلغاء</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- SCRIPT -->
+  <script type="module">
+    import { 
+      dbGetAdminOverview, 
+      dbApproveTeacherDirect, 
+      dbToggleStudentActivation, 
+      dbTransferStudent, 
+      dbRepairAllStudentIndexes 
+    } from "./firebase-engine.js";
+
+    const SUPER_ADMIN_SECRET = "raqib2026";
+
+    let cachedTeachers = [];
+    let cachedStudents = [];
+
+    window.logoutAdmin = logoutAdmin;
+    window.switchAdminTab = switchAdminTab;
+    window.filterAdminStudents = filterAdminStudents;
+    window.toggleStudentStatusAction = toggleStudentStatusAction;
+    window.openTransferModal = openTransferModal;
+    window.closeTransferModal = closeTransferModal;
+    window.confirmTransferStudentAction = confirmTransferStudentAction;
+    window.repairIndexesAction = repairIndexesAction;
+    window.loadAdminWorkspace = loadAdminWorkspace;
+
+    function showLoader(txt = "جاري المعالجة...") {
+      document.getElementById("loaderText").innerText = txt;
+      document.getElementById("loader").classList.remove("hidden");
+    }
+    function hideLoader() {
+      document.getElementById("loader").classList.add("hidden");
+    }
+
+    window.onload = () => {
+      if (sessionStorage.getItem("raqib_admin_auth") === "true") {
+        document.getElementById("loginScreen").classList.add("hidden");
+        document.getElementById("adminApp").classList.remove("hidden");
+        loadAdminWorkspace();
+      }
+    };
+
+    document.getElementById("adminLoginForm")?.addEventListener("submit", (e) => {
+      e.preventDefault();
+      const key = document.getElementById("adminSecretKey").value.trim();
+      if (key === SUPER_ADMIN_SECRET) {
+        sessionStorage.setItem("raqib_admin_auth", "true");
+        document.getElementById("loginScreen").classList.add("hidden");
+        document.getElementById("adminApp").classList.remove("hidden");
+        loadAdminWorkspace();
+      } else {
+        alert("رمز الحماية غير صحيح!");
+      }
+    });
+
+    function logoutAdmin() {
+      sessionStorage.removeItem("raqib_admin_auth");
+      location.reload();
+    }
+
+    async function loadAdminWorkspace() {
+      showLoader("جاري مزامنة بيانات المنصة عبر Firebase...");
+      try {
+        const res = await dbGetAdminOverview();
+        if (res.status === "success") {
+          cachedTeachers = res.teachers || [];
+          cachedStudents = res.students || [];
+
+          updateStats();
+          renderTeachers();
+          renderStudents(cachedStudents);
+        } else {
+          alert("خطأ أثناء جلب البيانات: " + res.message);
+        }
+      } catch (err) {
+        alert("تعذر الاتصال بـ Firebase.");
+      } finally {
+        hideLoader();
+      }
+    }
+
+    function calculateTierRate(count) {
+      if (count > 1000) return 1.55;
+      if (count > 500) return 1.80;
+      if (count > 300) return 2.00;
+      return 2.34;
+    }
+
+    function updateStats() {
+      let totalWallets = 0;
+      let totalExpectedRevenue = 0;
+
+      cachedTeachers.forEach(t => {
+        const tStudents = cachedStudents.filter(s => s.teacherId === t.id);
+        const count = tStudents.length;
+        const rate = calculateTierRate(count);
+        totalExpectedRevenue += count * rate;
+        totalWallets += Number(t.walletBalance || 0);
+      });
+
+      document.getElementById("statTotalTeachers").innerText = cachedTeachers.length;
+      document.getElementById("statTotalStudents").innerText = cachedStudents.length;
+      document.getElementById("statActiveWalletsTotal").innerText = `${totalWallets} ج.م`;
+      document.getElementById("statExpectedMonthlyRevenue").innerText = `${Math.round(totalExpectedRevenue)} ج.م`;
+    }
+
+    function renderTeachers() {
+      const container = document.getElementById("adminTeachersList");
+      if (!container) return;
+
+      if (cachedTeachers.length === 0) {
+        container.innerHTML = '<p class="text-slate-500 text-xs text-center py-8 col-span-full">لا يوجد معلمون مسجلون حالياً.</p>';
+        return;
+      }
+
+      container.innerHTML = cachedTeachers.map(t => {
+        const tStudents = cachedStudents.filter(s => s.teacherId === t.id);
+        const count = tStudents.length;
+        const rate = calculateTierRate(count);
+        const monthlyCost = Math.round(count * rate * 100) / 100;
+        const balance = Number(t.walletBalance || 0);
+
+        return `
+          <div class="glass-card p-4 rounded-2xl border space-y-2.5 text-xs">
+            <div class="flex justify-between items-start border-b border-slate-800 pb-2">
+              <div>
+                <div class="font-bold text-white text-sm">${t.name}</div>
+                <div class="text-[10px] text-indigo-400 font-mono">كود: [${t.id}]</div>
+              </div>
+              <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/30">
+                معتمد ✓
+              </span>
+            </div>
+            <div class="text-slate-300 space-y-1">
+              <div>المادة: <strong class="text-white">${t.subject}</strong> | الطلاب: <strong class="text-indigo-300">${count} طالب</strong></div>
+              <div>رصيد المحفظة: <strong class="text-emerald-400">${balance} ج.م</strong></div>
+              <div>التحقق الشهري (شريحة ${rate} ج): <strong class="text-amber-400">${monthlyCost} ج.م</strong></div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function renderStudents(list) {
+      const container = document.getElementById("adminStudentsList");
+      if (!container) return;
+
+      if (list.length === 0) {
+        container.innerHTML = '<p class="text-slate-500 text-xs text-center py-8">لا يوجد طلاب مسجلون.</p>';
+        return;
+      }
+
+      container.innerHTML = list.map(s => {
+        const teacher = cachedTeachers.find(t => t.id === s.teacherId);
+        const tName = teacher ? teacher.name : s.teacherId;
+
+        return `
+          <div class="glass-card p-4 rounded-2xl flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 text-xs">
+            <div>
+              <div class="font-bold text-white text-sm flex items-center gap-2">
+                ${s.name}
+                <span class="text-[10px] text-indigo-300 font-mono">[كود: ${s.id}]</span>
+              </div>
+              <div class="text-[11px] text-slate-400 mt-0.5">
+                الصف: ${s.grade || '-'} | الأستاذ: <strong class="text-slate-300">${tName}</strong> | هاتف: ${s.phone || s.parentPhone || '-'}
+              </div>
+            </div>
+
+            <div class="flex items-center gap-2 w-full sm:w-auto justify-between sm:justify-end">
+              <button onclick="toggleStudentStatusAction('${s.id}', '${s.teacherId}', ${!s.isActive})" class="px-3 py-1.5 rounded-xl font-bold transition btn-press ${s.isActive ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' : 'bg-rose-500/20 text-rose-400 border border-rose-500/30'}">
+                ${s.isActive ? 'مفعّل ✓' : 'غير مفعّل ✕'}
+              </button>
+              
+              <button onclick="openTransferModal('${s.id}', '${s.teacherId}')" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl font-bold transition btn-press" title="نقل لمعلم آخر">
+                <i class="fa-solid fa-arrow-right-arrow-left"></i> نقل
+              </button>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function filterAdminStudents() {
+      const q = document.getElementById("adminStudentSearch").value.toLowerCase().trim();
+      if (!q) {
+        renderStudents(cachedStudents);
+        return;
+      }
+      const filtered = cachedStudents.filter(s => 
+        (s.name && s.name.toLowerCase().includes(q)) || 
+        (s.id && s.id.toString().includes(q)) ||
+        (s.phone && s.phone.includes(q))
+      );
+      renderStudents(filtered);
+    }
+
+    async function toggleStudentStatusAction(studentId, teacherId, newStatus) {
+      showLoader("جاري تحديث الصلاحية في Firebase...");
+      try {
+        const res = await dbToggleStudentActivation(studentId, teacherId, newStatus);
+        if (res.status === "success") {
+          const std = cachedStudents.find(s => s.id === studentId);
+          if (std) std.isActive = newStatus;
+          updateStats();
+          renderStudents(cachedStudents);
+        } else {
+          alert("تعذر التحديث: " + res.message);
+        }
+      } catch (e) {
+        alert("حدث خطأ.");
+      } finally {
+        hideLoader();
+      }
+    }
+
+    function openTransferModal(studentId, fromTeacherId) {
+      document.getElementById("transferStudentId").value = studentId;
+      document.getElementById("transferFromTeacherId").value = fromTeacherId;
+
+      const sel = document.getElementById("transferToTeacherSelect");
+      sel.innerHTML = cachedTeachers
+        .filter(t => t.id !== fromTeacherId)
+        .map(t => `<option value="${t.id}">${t.name} (${t.subject})</option>`).join('');
+
+      document.getElementById("transferStudentModal").classList.remove("hidden");
+    }
+
+    function closeTransferModal() {
+      document.getElementById("transferStudentModal").classList.add("hidden");
+    }
+
+    async function confirmTransferStudentAction() {
+      const sId = document.getElementById("transferStudentId").value;
+      const fromT = document.getElementById("transferFromTeacherId").value;
+      const toT = document.getElementById("transferToTeacherSelect").value;
+
+      if (!toT) return;
+
+      showLoader("جاري نقل الطالب وتحديث الفهارس...");
+      try {
+        const res = await dbTransferStudent(sId, fromT, toT);
+        if (res.status === "success") {
+          alert("✅ تم نقل الطالب بنجاح وتحديث الفهرس السريع!");
+          closeTransferModal();
+          loadAdminWorkspace();
+        } else {
+          alert("تعذر النقل: " + res.message);
+        }
+      } catch (e) {
+        alert("خطأ أثناء النقل.");
+      } finally {
+        hideLoader();
+      }
+    }
+
+    async function repairIndexesAction() {
+      if (!confirm("هل ترغب في فحص وإعادة بناء فهارس جميع الطلاب للتأكد من عدم وجود أي طالب عالق؟")) return;
+
+      showLoader("جاري فحص ومزامنة الفهارس...");
+      try {
+        const res = await dbRepairAllStudentIndexes();
+        if (res.status === "success") {
+          alert(`✅ تمت المزامنة بنجاح! تم فحص وربط (${res.repairedCount}) طالب.`);
+          loadAdminWorkspace();
+        } else {
+          alert("فشلت المزامنة: " + res.message);
+        }
+      } catch (e) {
+        alert("خطأ أثناء الفحص.");
+      } finally {
+        hideLoader();
+      }
+    }
+
+    document.getElementById("createTeacherForm")?.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const tId = document.getElementById("newTeacherId").value.trim();
+      const tData = {
+        name: document.getElementById("newTeacherName").value.trim(),
+        subject: document.getElementById("newTeacherSubject").value.trim(),
+        governorate: document.getElementById("newTeacherGov").value.trim(),
+        phone: document.getElementById("newTeacherPhone").value.trim()
+      };
+
+      showLoader("جاري اعتماد المعلم وتجهيز شجرته...");
+      try {
+        const res = await dbApproveTeacherDirect(tId, tData);
+        if (res.status === "success") {
+          alert(`🎉 تم اعتماد المعلم (${tData.name}) بنجاح! كود الدخول الخاص به هو: ${tId}`);
+          e.target.reset();
+          switchAdminTab("teachers");
+          loadAdminWorkspace();
+        } else {
+          alert("تعذر الاعتماد: " + res.message);
+        }
+      } catch (err) {
+        alert("خطأ في الاتصال.");
+      } finally {
+        hideLoader();
+      }
+    });
+
+    function switchAdminTab(tabId) {
+      document.querySelectorAll(".tab-content").forEach(el => el.classList.remove("active"));
+      document.getElementById(`tab-${tabId}`)?.classList.add("active");
+
+      document.querySelectorAll(".admin-nav-btn").forEach(btn => {
+        if (btn.dataset.tab === tabId) {
+          btn.className = "admin-nav-btn flex-1 py-2.5 rounded-xl text-white bg-indigo-600/90 shadow transition";
+        } else {
+          btn.className = "admin-nav-btn flex-1 py-2.5 rounded-xl hover:text-white transition";
+        }
+      });
+    }
+  </script>
+</body>
+</html>
