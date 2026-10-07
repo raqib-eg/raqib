@@ -11,10 +11,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
   
-  <!-- مكتبة توليد الـ QR Code -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-
-  <!-- مشغل Plyr -->
   <link rel="stylesheet" href="https://cdn.plyr.io/3.7.8/plyr.css" />
   <script src="https://cdn.plyr.io/3.7.8/plyr.polyfilled.js"></script>
 
@@ -25,14 +22,10 @@
     .glass-card {
       background: rgba(15, 23, 42, 0.75);
       backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
       border: 1px solid rgba(255, 255, 255, 0.08);
     }
 
-    .luxury-gradient {
-      background: linear-gradient(135deg, #4f46e5 0%, #312e81 100%);
-    }
-
+    .luxury-gradient { background: linear-gradient(135deg, #4f46e5 0%, #312e81 100%); }
     .btn-press { transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1); }
     .btn-press:active { transform: scale(0.96); }
 
@@ -40,90 +33,20 @@
       border: 3px solid rgba(255, 255, 255, 0.15);
       border-radius: 50%;
       border-top-color: #6366f1;
-      width: 20px;
-      height: 20px;
+      width: 20px; height: 20px;
       animation: spin 0.7s linear infinite;
       display: inline-block;
     }
     @keyframes spin { to { transform: rotate(360deg); } }
 
-    /* معمارية تحصين الفيديو وعزل أحداث النقر بالكامل */
-    :root {
-      --plyr-color-main: #4f46e5;
-      --plyr-video-background: #000000;
-    }
-
-    .pure-video-stage {
-      position: relative;
-      width: 100%;
-      padding-top: 56.25%;
-      background: #000000;
-      border-radius: 1.25rem;
-      overflow: hidden;
-      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7);
-    }
-
-    .pure-video-stage .plyr {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-    }
-
-    .pure-video-stage iframe {
-      width: 100% !important;
-      height: 100% !important;
-      border: 0 !important;
-      pointer-events: none !important;
-    }
-
-    .pure-event-interceptor {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: calc(100% - 50px);
-      z-index: 50;
-      cursor: pointer;
-      background: transparent;
-      user-select: none;
-      -webkit-tap-highlight-color: transparent;
-    }
-
-    .plyr--video .plyr__controls {
-      position: absolute;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      z-index: 60 !important;
-    }
-
-    :fullscreen .pure-event-interceptor,
-    :-webkit-full-screen .pure-event-interceptor,
-    :-moz-full-screen .pure-event-interceptor,
-    .plyr--fullscreen-active .pure-event-interceptor {
-      position: absolute !important;
-      top: 0 !important;
-      left: 0 !important;
-      width: 100% !important;
-      height: calc(100% - 60px) !important;
-      z-index: 50 !important;
-      pointer-events: all !important;
-    }
-
-    :fullscreen .plyr__controls,
-    :-webkit-full-screen .plyr__controls,
-    .plyr--fullscreen-active .plyr__controls {
-      z-index: 60 !important;
-    }
-
-    :fullscreen iframe,
-    :-webkit-full-screen iframe,
-    .plyr--fullscreen-active iframe {
-      pointer-events: none !important;
-    }
-
+    /* حماية المشغل */
+    :root { --plyr-color-main: #4f46e5; --plyr-video-background: #000000; }
+    .pure-video-stage { position: relative; width: 100%; padding-top: 56.25%; background: #000; border-radius: 1.25rem; overflow: hidden; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.7); }
+    .pure-video-stage .plyr { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
+    .pure-video-stage iframe { width: 100% !important; height: 100% !important; border: 0 !important; pointer-events: none !important; }
+    .pure-event-interceptor { position: absolute; top: 0; left: 0; width: 100%; height: calc(100% - 50px); z-index: 50; cursor: pointer; background: transparent; user-select: none; -webkit-tap-highlight-color: transparent; }
+    .plyr--video .plyr__controls { position: absolute; bottom: 0; left: 0; right: 0; z-index: 60 !important; }
+    :fullscreen .pure-event-interceptor, .plyr--fullscreen-active .pure-event-interceptor { height: calc(100% - 60px) !important; pointer-events: all !important; }
     ::-webkit-scrollbar { width: 4px; height: 4px; }
     ::-webkit-scrollbar-track { background: #0b0f19; }
     ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
@@ -131,13 +54,13 @@
 </head>
 <body class="min-h-screen flex flex-col antialiased selection:bg-indigo-500 selection:text-white" oncontextmenu="return false;">
 
-  <!-- OVERLAY LOADER -->
+  <!-- LOADER -->
   <div id="loader" class="hidden fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 flex flex-col items-center justify-center text-white">
     <div class="spinner mb-3"></div>
     <div id="loaderText" class="text-xs font-bold text-slate-300">جاري فحص السحابة...</div>
   </div>
 
-  <!-- 1. LOGIN SCREEN -->
+  <!-- LOGIN SCREEN -->
   <div id="loginScreen" class="fixed inset-0 bg-[#090d16] z-40 flex items-center justify-center p-4">
     <div class="glass-card rounded-[32px] p-8 w-full max-w-sm shadow-2xl border border-white/10 text-center space-y-6">
       <div>
@@ -147,66 +70,56 @@
         <h2 class="text-2xl font-black text-white">بوابة الطالب الذكية</h2>
         <p class="text-xs text-slate-400 mt-1 font-medium">سجل دخولك برقم كودك المعتمد</p>
       </div>
-
       <form id="studentLoginForm" class="space-y-4 text-right">
         <div>
           <label class="block text-xs font-bold text-slate-300 mb-1">كود الطالب الرقمي *</label>
-          <input type="number" id="loginStudentId" required placeholder="مثال: 1001" class="w-full p-3.5 border border-slate-700 rounded-xl bg-slate-900/80 text-white font-bold text-xs md:text-sm outline-none focus:border-indigo-500 transition text-center tracking-wider font-mono">
+          <input type="number" id="loginStudentId" required placeholder="مثال: 1001" class="w-full p-3.5 border border-slate-700 rounded-xl bg-slate-900/80 text-white font-bold text-xs outline-none focus:border-indigo-500 transition text-center font-mono">
         </div>
-
-        <button type="submit" class="w-full luxury-gradient hover:opacity-95 text-white font-bold py-3.5 rounded-xl shadow-lg shadow-indigo-600/30 transition text-xs md:text-sm btn-press flex items-center justify-center gap-2">
-          <span>دخول حسابي</span>
-          <i class="fa-solid fa-arrow-left text-xs"></i>
+        <button type="submit" class="w-full luxury-gradient hover:opacity-95 text-white font-bold py-3.5 rounded-xl shadow-lg transition text-xs md:text-sm btn-press flex items-center justify-center gap-2">
+          <span>دخول حسابي</span> <i class="fa-solid fa-arrow-left text-xs"></i>
         </button>
       </form>
     </div>
   </div>
 
-  <!-- 2. ACCESS PENDING MODAL -->
+  <!-- ACCESS PENDING MODAL -->
   <div id="studentAccessModal" class="hidden fixed inset-0 bg-slate-950/90 backdrop-blur-md z-50 flex items-center justify-center p-4">
     <div class="glass-card rounded-[32px] p-7 w-full max-w-sm shadow-2xl border border-white/10 text-center space-y-5">
-      <div class="w-16 h-16 bg-amber-500/10 text-amber-400 border border-amber-500/20 rounded-2xl flex items-center justify-center mx-auto text-2xl animate-pulse shadow-inner">
-        <i class="fa-solid fa-hourglass-half"></i>
-      </div>
+      <div class="w-16 h-16 bg-amber-500/10 text-amber-400 border border-amber-500/20 rounded-2xl flex items-center justify-center mx-auto text-2xl animate-pulse shadow-inner"><i class="fa-solid fa-hourglass-half"></i></div>
       <div>
         <h3 class="text-lg font-black text-white">الحساب بانتظار الاعتماد</h3>
-        <p class="text-xs text-slate-400 mt-1.5 leading-relaxed font-medium">
-          تم العثور على بياناتك، ولكن حسابك لم يُفعل بعد من قِبل الأستاذ أو الإدارة.
-        </p>
+        <p class="text-xs text-slate-400 mt-1.5 font-medium">تم العثور على بياناتك، ولكن حسابك لم يُفعل بعد من قِبل الأستاذ.</p>
       </div>
-      <button onclick="logoutStudent()" class="w-full bg-slate-800 hover:bg-slate-700 text-white font-bold py-3 rounded-xl transition text-xs btn-press">
-        تسجيل الخروج
-      </button>
+      <button onclick="logoutStudent()" class="w-full bg-slate-800 hover:bg-slate-700 text-white font-bold py-3 rounded-xl transition text-xs btn-press">تسجيل الخروج</button>
     </div>
   </div>
 
-  <!-- 3. MAIN STUDENT DASHBOARD -->
+  <!-- MAIN STUDENT DASHBOARD -->
   <div id="studentApp" class="hidden flex-1 flex flex-col max-w-2xl w-full mx-auto p-4 md:p-6 space-y-5 pb-16">
     
     <!-- HEADER -->
     <header class="glass-card p-4 md:p-5 rounded-3xl flex justify-between items-center border border-white/10 shadow-lg">
       <div class="flex items-center gap-3">
         <div class="w-10 h-10 rounded-xl luxury-gradient flex items-center justify-center text-white text-lg font-bold shadow-md shadow-indigo-500/20">
-          <i class="fa-solid fa-user-graduate"></i>
+          <i class="fa-solid fa-wallet"></i>
         </div>
         <div>
-          <h1 class="font-black text-sm md:text-base text-white" id="headerStudentName">اسم الطالب</h1>
-          <span class="text-[10px] text-emerald-400 font-bold flex items-center gap-1">
-            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
-            معتمد لدى: <strong id="headerTeacherName">-</strong>
-          </span>
+          <h1 class="font-black text-xs text-slate-400">رصيد المحفظة</h1>
+          <div class="text-lg md:text-xl font-black text-emerald-400" id="headerWalletBalance">0 ج.م</div>
         </div>
       </div>
-      <button onclick="logoutStudent()" class="text-xs bg-rose-500/10 text-rose-300 hover:bg-rose-500/20 px-3 py-1.5 rounded-xl font-bold transition btn-press flex items-center gap-1.5">
-        <i class="fa-solid fa-arrow-right-from-bracket"></i> خروج
-      </button>
+      <div class="flex flex-col items-end gap-1">
+        <h2 class="font-bold text-sm text-white" id="headerStudentName">اسم الطالب</h2>
+        <button onclick="logoutStudent()" class="text-[10px] text-rose-400 hover:text-rose-300 transition font-bold btn-press">
+          تسجيل الخروج <i class="fa-solid fa-arrow-right-from-bracket ml-0.5"></i>
+        </button>
+      </div>
     </header>
 
-    <!-- SMART ID CARD WITH REALTIME QR -->
+    <!-- SMART ID CARD -->
     <div class="luxury-gradient rounded-3xl p-6 shadow-2xl shadow-indigo-900/30 text-white relative overflow-hidden flex flex-col sm:flex-row items-center justify-between gap-5 border border-white/10">
       <div class="absolute -right-8 -bottom-8 w-36 h-36 bg-white/5 rounded-full blur-2xl"></div>
-      
-      <div class="space-y-2 text-center sm:text-right flex-1">
+      <div class="space-y-2 text-center sm:text-right flex-1 z-10">
         <span class="text-[10px] bg-white/15 px-3 py-1 rounded-full font-bold uppercase tracking-wider">بطاقة الطالب الذكية</span>
         <h2 class="text-xl font-black" id="cardStudentName">-</h2>
         <div class="text-xs text-indigo-100 font-semibold space-y-0.5">
@@ -216,21 +129,20 @@
         </div>
         <p class="text-[10px] text-indigo-200/80 pt-1">امسح الكود أثناء دخول الحصة لتسجيل الحضور الفوري.</p>
       </div>
-
-      <div class="bg-white p-3 rounded-2xl shadow-xl flex flex-col items-center justify-center">
+      <div class="bg-white p-3 rounded-2xl shadow-xl flex flex-col items-center justify-center z-10">
         <div id="studentQRCodeContainer"></div>
         <span class="text-[9px] text-slate-800 font-bold mt-1.5 font-mono">SCAN ME</span>
       </div>
     </div>
 
-    <!-- REDEEM CODE SECTION -->
-    <div class="glass-card p-4 rounded-3xl border border-white/10 flex flex-col sm:flex-row gap-3 items-center mb-4">
+    <!-- REDEEM WALLET CODE -->
+    <div class="glass-card p-4 rounded-3xl border border-white/10 flex flex-col sm:flex-row gap-3 items-center">
       <div class="flex-1 w-full relative">
-        <i class="fa-solid fa-key absolute right-4 top-3.5 text-indigo-400"></i>
-        <input type="text" id="accessCodeInput" placeholder="أدخل كود تفعيل الحصة المدفوعة هنا..." class="w-full bg-slate-900 border border-slate-700 rounded-xl py-3 pr-10 pl-4 text-xs md:text-sm text-white font-bold outline-none focus:border-indigo-500 tracking-widest text-center font-mono uppercase">
+        <i class="fa-solid fa-money-bill-wave absolute right-4 top-3.5 text-emerald-400"></i>
+        <input type="text" id="accessCodeInput" placeholder="أدخل كود شحن المحفظة هنا..." class="w-full bg-slate-900 border border-slate-700 rounded-xl py-3 pr-10 pl-4 text-xs md:text-sm text-white font-bold outline-none focus:border-emerald-500 tracking-widest text-center font-mono uppercase">
       </div>
-      <button onclick="redeemCode()" class="w-full sm:w-auto luxury-gradient hover:opacity-95 text-white font-bold px-6 py-3 rounded-xl shadow-lg transition btn-press text-xs md:text-sm whitespace-nowrap">
-        تفعيل الكود 🔓
+      <button onclick="redeemCode()" class="w-full sm:w-auto bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-6 py-3 rounded-xl shadow-lg transition btn-press text-xs md:text-sm whitespace-nowrap flex items-center justify-center gap-2">
+        <i class="fa-solid fa-bolt"></i> شحن الرصيد
       </button>
     </div>
 
@@ -238,18 +150,31 @@
     <div class="glass-card p-5 rounded-3xl border border-white/10 space-y-3 text-right">
       <div class="flex justify-between items-center border-b border-slate-800 pb-2.5">
         <h3 class="font-black text-sm text-white flex items-center gap-2">
-          <i class="fa-solid fa-video text-indigo-400"></i> الحصص والشروحات المتاحة
+          <i class="fa-solid fa-video text-indigo-400"></i> الحصص والشروحات
         </h3>
         <span class="text-[10px] text-slate-400" id="studentLessonsCountBadge">0 حصص</span>
       </div>
-      <div id="studentLessonsList" class="space-y-2.5 max-h-80 overflow-y-auto text-xs">
+      <div id="studentLessonsList" class="space-y-2.5 max-h-72 overflow-y-auto text-xs">
         <p class="text-slate-500 text-center py-4">جاري فحص الحصص المتاحة...</p>
+      </div>
+    </div>
+
+    <!-- BOOKS SECTION -->
+    <div class="glass-card p-5 rounded-3xl border border-white/10 space-y-3 text-right">
+      <div class="flex justify-between items-center border-b border-slate-800 pb-2.5">
+        <h3 class="font-black text-sm text-white flex items-center gap-2">
+          <i class="fa-solid fa-book-open text-amber-400"></i> المذكرات والملازم
+        </h3>
+        <span class="text-[10px] text-slate-400" id="studentBooksCountBadge">0 مذكرات</span>
+      </div>
+      <div id="studentBooksList" class="space-y-2.5 max-h-72 overflow-y-auto text-xs">
+        <p class="text-slate-500 text-center py-4">جاري فحص المخزن...</p>
       </div>
     </div>
 
   </div>
 
-  <!-- نافذة معاينة وتشغيل الفيديو المحصنة -->
+  <!-- VIDEO MODAL -->
   <div id="studentVideoModal" class="hidden fixed inset-0 bg-slate-950/95 backdrop-blur-md z-50 flex items-center justify-center p-4">
     <div class="bg-slate-900 rounded-3xl p-4 md:p-5 w-full max-w-3xl border border-slate-800 space-y-3 shadow-2xl">
       <div class="flex justify-between items-center text-white px-2">
@@ -259,21 +184,24 @@
         </div>
         <button onclick="closeStudentVideoModal()" class="text-slate-400 hover:text-rose-400 font-bold text-2xl leading-none transition">&times;</button>
       </div>
-      
       <div class="pure-video-stage" id="pureVideoStageBox">
         <div class="pure-event-interceptor" onclick="togglePlayPauseFromShield()"></div>
         <div id="studentVideoMount"></div>
       </div>
-      
-      <div class="text-[11px] text-slate-400 text-center font-medium">
-        مشاهدة آمنة محمية عبر مشغل رَقِـيـبْ
-      </div>
+      <div class="text-[11px] text-slate-400 text-center font-medium">مشاهدة آمنة محمية عبر مشغل رَقِـيـبْ</div>
     </div>
   </div>
 
   <!-- FIREBASE ENGINE SCRIPT -->
   <script type="module">
-    import { dbStudentLogin, dbGetStudentLessons, dbRedeemAccessCode } from "./firebase-engine.js";
+    import { 
+      dbStudentLogin, 
+      dbGetStudentLessons, 
+      dbRedeemAccessCode, 
+      dbStudentBuyLesson,
+      dbGetStudentBooks,
+      dbSaveBookReservation
+    } from "./firebase-engine.js";
 
     let currentStudent = JSON.parse(localStorage.getItem("raqib_student_session") || "null");
     let studentLessonsCache = [];
@@ -284,17 +212,14 @@
     window.closeStudentVideoModal = closeStudentVideoModal;
     window.togglePlayPauseFromShield = togglePlayPauseFromShield;
     window.redeemCode = redeemCode;
+    window.buyLessonAction = buyLessonAction;
+    window.reserveBook = reserveBook;
 
-    // حماية منع الكليك اليمين واختصارات المتصفح
+    // حماية ضد التحميل والنقر
     document.addEventListener('contextmenu', event => event.preventDefault());
     document.addEventListener('keydown', event => {
-      if (
-        event.keyCode === 123 || 
-        (event.ctrlKey && event.shiftKey && (event.keyCode === 73 || event.keyCode === 74)) || 
-        (event.ctrlKey && event.keyCode === 85)
-      ) {
-        event.preventDefault();
-        return false;
+      if (event.keyCode === 123 || (event.ctrlKey && event.shiftKey && (event.keyCode === 73 || event.keyCode === 74)) || (event.ctrlKey && event.keyCode === 85)) {
+        event.preventDefault(); return false;
       }
     });
 
@@ -302,9 +227,7 @@
       document.getElementById("loaderText").innerText = txt;
       document.getElementById("loader").classList.remove("hidden");
     }
-    function hideLoader() { 
-      document.getElementById("loader").classList.add("hidden"); 
-    }
+    function hideLoader() { document.getElementById("loader").classList.add("hidden"); }
 
     window.onload = () => {
       if (currentStudent && currentStudent.id) {
@@ -313,58 +236,44 @@
       }
     };
 
-    document.getElementById("studentLoginForm")?.addEventListener("submit", handleStudentLogin);
-
-    async function handleStudentLogin(e) {
+    document.getElementById("studentLoginForm")?.addEventListener("submit", async (e) => {
       e.preventDefault();
       const sId = document.getElementById("loginStudentId").value.trim();
-
-      if (!sId) {
-        alert("⚠️ يرجى إدخال كود الطالب!");
-        return;
-      }
+      if (!sId) { alert("⚠️ يرجى إدخال كود الطالب!"); return; }
 
       showLoader("جاري البحث في الفهرس السريع...");
-
       try {
         const res = await dbStudentLogin(sId);
-
         if (res && res.status === "success") {
-          currentStudent = {
-            ...res.student,
-            teacherId: res.teacherId,
-            teacherName: res.teacherName,
-            isActive: res.isActive
-          };
+          currentStudent = { ...res.student, teacherId: res.teacherId, teacherName: res.teacherName, isActive: res.isActive };
           localStorage.setItem("raqib_student_session", JSON.stringify(currentStudent));
           document.getElementById("loginScreen").classList.add("hidden");
           initStudentPortal();
         } else {
           alert(res.message || "❌ لم يتم العثور على الطالب، تأكد من صحة الكود!");
         }
-      } catch (err) {
-        alert("تعذر الاتصال بـ Firebase.");
-      } finally {
-        hideLoader();
-      }
-    }
+      } catch (err) { alert("تعذر الاتصال بـ Firebase."); } 
+      finally { hideLoader(); }
+    });
 
     async function initStudentPortal() {
       if (!currentStudent.isActive) {
         document.getElementById("studentAccessModal").classList.remove("hidden");
         return;
       }
-
       document.getElementById("studentAccessModal").classList.add("hidden");
       document.getElementById("studentApp").classList.remove("hidden");
 
       renderDashboard();
       await loadLessons();
+      await loadBooks();
     }
 
     function renderDashboard() {
       document.getElementById("headerStudentName").innerText = currentStudent.name;
+      document.getElementById("headerWalletBalance").innerText = `${currentStudent.walletBalance || 0} ج.م`;
       document.getElementById("headerTeacherName").innerText = currentStudent.teacherName || "أستاذ المادة";
+      
       document.getElementById("cardStudentName").innerText = currentStudent.name;
       document.getElementById("cardStudentId").innerText = currentStudent.id;
       document.getElementById("cardGroupName").innerText = currentStudent.groupCode || "المجموعة العامة";
@@ -374,33 +283,27 @@
       if (qrContainer) {
         qrContainer.innerHTML = "";
         new QRCode(qrContainer, {
-          text: currentStudent.id.toString(),
-          width: 95,
-          height: 95,
-          colorDark: "#1e1b4b",
-          colorLight: "#ffffff",
-          correctLevel: QRCode.CorrectLevel.M
+          text: currentStudent.id.toString(), width: 95, height: 95,
+          colorDark: "#1e1b4b", colorLight: "#ffffff", correctLevel: QRCode.CorrectLevel.M
         });
       }
     }
 
+    // --- دروس ومحفظة الطالب ---
     async function loadLessons() {
       if (!currentStudent.teacherId) return;
-
       const lessons = await dbGetStudentLessons(currentStudent.teacherId);
       studentLessonsCache = lessons;
-
       const container = document.getElementById("studentLessonsList");
       const badge = document.getElementById("studentLessonsCountBadge");
 
       const available = lessons.filter(l => {
-        const gradeMatch = !l.grade || l.grade === currentStudent.grade || l.grade === "";
+        const gradeMatch = !l.grade || l.grade === currentStudent.grade || l.grade === "عام";
         const groupMatch = l.groupCode === "ALL" || l.groupCode === currentStudent.groupCode || !l.groupCode;
         return gradeMatch && groupMatch;
       });
 
       if (badge) badge.innerText = `${available.length} حصص`;
-
       if (available.length === 0) {
         container.innerHTML = '<p class="text-slate-500 text-center py-4">لا توجد حصص مسجلة متاحة لك حالياً.</p>';
         return;
@@ -410,22 +313,24 @@
         const isPaid = l.isPaid === true || l.isPaid === "true";
         const unlockedList = l.unlockedStudents || [];
         const isUnlocked = !isPaid || unlockedList.includes(currentStudent.id.toString());
+        const studentBalance = Number(currentStudent.walletBalance || 0);
+        const canAfford = studentBalance >= Number(l.price || 0);
 
         return `
           <div class="p-3.5 rounded-2xl bg-slate-900/60 border border-slate-800 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
             <div>
               <div class="font-bold text-white text-sm">${l.title}</div>
-              <div class="text-[10px] text-slate-400 mt-0.5">📅 ${l.date || ''} | ${isPaid ? (isUnlocked ? '<span class="text-emerald-400 font-bold">مفعلة مدفوعة ✓</span>' : '<span class="text-amber-400 font-bold">مقفولة 🔒</span>') : '<span class="text-blue-400 font-bold">حصة مجانية</span>'}</div>
+              <div class="text-[10px] text-slate-400 mt-0.5">📅 ${l.date || ''} | ${isPaid ? `<span class="text-amber-400 font-bold">السعر: ${l.price} ج.م</span>` : '<span class="text-blue-400 font-bold">حصة مجانية</span>'}</div>
             </div>
             <div>
               ${isUnlocked ? `
                 <button onclick="playStudentVideo('${l.lessonId}')" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl font-bold text-xs shadow transition btn-press flex items-center gap-1.5">
-                  <i class="fa-solid fa-play"></i> مشاهدة الشرح
+                  <i class="fa-solid fa-play"></i> مشاهدة
                 </button>
               ` : `
-                <span class="text-[11px] text-rose-400 bg-rose-500/10 border border-rose-500/20 px-3 py-1.5 rounded-xl font-bold">
-                  أدخل كود التفعيل بالأعلى لفتح الحصة
-                </span>
+                <button onclick="buyLessonAction('${l.lessonId}',${l.price})" class="px-4 py-2 rounded-xl font-bold text-xs transition btn-press flex items-center gap-1.5 ${canAfford ? 'bg-emerald-600 hover:bg-emerald-500 text-white' : 'bg-slate-700 text-slate-400 cursor-not-allowed'}">
+                  <i class="fa-solid fa-cart-shopping"></i> ${canAfford ? 'شراء من الرصيد' : 'رصيد غير كافِ'}
+                </button>
               `}
             </div>
           </div>
@@ -435,27 +340,113 @@
 
     async function redeemCode() {
       const code = document.getElementById("accessCodeInput").value.trim();
-      if (!code) {
-        alert("⚠️ يرجى إدخال كود التفعيل أولاً!");
-        return;
-      }
+      if (!code) { alert("⚠️ يرجى إدخال كود الشحن أولاً!"); return; }
 
-      showLoader("جاري التحقق من الكود وتفعيل الحصة...");
+      showLoader("جاري شحن الرصيد...");
       try {
         const res = await dbRedeemAccessCode(currentStudent.id, currentStudent.teacherId, code);
         if (res && res.status === "success") {
-          alert("🎉 تم تفعيل الحصة بنجاح! يمكنك الآن مشاهدتها.");
+          alert(`🎉 تم شحن محفظتك بمبلغ (${res.addedValue} ج.م) بنجاح!`);
           document.getElementById("accessCodeInput").value = "";
-          await loadLessons(); // تحديث قائمة الفيديوهات
+          currentStudent.walletBalance = res.newBalance; 
+          localStorage.setItem("raqib_student_session", JSON.stringify(currentStudent));
+          renderDashboard();
+          await loadLessons(); 
         } else {
-          alert(res.message || "❌ الكود غير صحيح أو مستخدم من قبل.");
+          alert(res.message);
         }
-      } catch (err) {
-        alert("حدث خطأ أثناء الاتصال.");
-      } finally {
-        hideLoader();
-      }
+      } catch (err) { alert("حدث خطأ أثناء الاتصال."); } 
+      finally { hideLoader(); }
     }
+
+    async function buyLessonAction(lessonId, price) {
+      const balance = Number(currentStudent.walletBalance || 0);
+      if (balance < price) {
+        alert(`❌ رصيد محفظتك (${balance} ج.م) لا يكفي لشراء الحصة (${price} ج.م).\nيرجى شحن الرصيد أولاً عبر إدخال الكود بالأعلى.`);
+        return;
+      }
+      if (!confirm(`هل أنت متأكد من شراء هذه الحصة بخصم ${price} ج.م من رصيد محفظتك؟`)) return;
+      
+      showLoader("جاري إتمام عملية الشراء...");
+      try {
+        const res = await dbStudentBuyLesson(currentStudent.id, currentStudent.teacherId, lessonId, price);
+        if (res && res.status === "success") {
+          alert("✅ تم شراء الحصة بنجاح! يمكنك مشاهدتها الآن.");
+          currentStudent.walletBalance = res.newBalance;
+          localStorage.setItem("raqib_student_session", JSON.stringify(currentStudent));
+          renderDashboard();
+          await loadLessons();
+        } else {
+          alert(res.message || "حدث خطأ أثناء الشراء.");
+        }
+      } catch(e) { alert("خطأ في الاتصال بالخادم."); }
+      finally { hideLoader(); }
+    }
+
+    // --- المذكرات والمخزن ---
+    async function loadBooks() {
+      if (!currentStudent.teacherId) return;
+
+      const books = await dbGetStudentBooks(currentStudent.teacherId);
+      const container = document.getElementById("studentBooksList");
+      const badge = document.getElementById("studentBooksCountBadge");
+
+      const available = books.filter(b => !b.grade || b.grade === currentStudent.grade || b.grade === "عام");
+      if (badge) badge.innerText = `${available.length} مذكرات`;
+
+      if (available.length === 0) {
+        container.innerHTML = '<p class="text-slate-500 text-center py-4">لا توجد مذكرات متاحة لصفك الدراسي حالياً.</p>';
+        return;
+      }
+
+      container.innerHTML = available.map(b => {
+        const isOutOfStock = Number(b.stock) <= 0;
+        return `
+          <div class="p-3.5 rounded-2xl bg-slate-900/60 border border-slate-800 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+            <div>
+              <div class="font-bold text-white text-sm">${b.title}</div>
+              <div class="text-[10px] text-slate-400 mt-0.5">السعر: <strong class="text-amber-400">${b.price} ج.م</strong> | متاح: ${b.stock} نسخة</div>
+            </div>
+            <div>
+              ${isOutOfStock ? `
+                <span class="text-[11px] text-rose-400 bg-rose-500/10 border border-rose-500/20 px-3 py-1.5 rounded-xl font-bold">نفدت الكمية ❌</span>
+              ` : `
+                <button onclick="reserveBook('${b.bookId}', '${b.title}')" class="px-4 py-2 bg-amber-600 hover:bg-amber-500 text-white rounded-xl font-bold text-xs shadow transition btn-press flex items-center gap-1.5">
+                  <i class="fa-solid fa-cart-arrow-down"></i> حجز نسخة
+                </button>
+              `}
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    async function reserveBook(bookId, bookTitle) {
+      if (!confirm(`هل أنت متأكد من حجز نسخة من (${bookTitle})؟\nسيتم إرسال الطلب للأستاذ وتدفع ثمنها عند الاستلام من السنتر.`)) return;
+      
+      showLoader("جاري تسجيل الحجز...");
+      const reservation = {
+        id: "RES-" + Math.floor(10000 + Math.random() * 90000),
+        studentId: currentStudent.id,
+        studentName: currentStudent.name,
+        bookId: bookId,
+        bookTitle: bookTitle,
+        qty: 1,
+        date: new Date().toISOString().split("T")[0],
+        status: "معلق"
+      };
+
+      try {
+        const res = await dbSaveBookReservation(currentStudent.teacherId, reservation);
+        if (res && res.status === "success") {
+          alert("✅ تم إرسال طلب الحجز للأستاذ بنجاح! يرجى الاستلام من السنتر في أقرب وقت.");
+        } else { alert("تعذر الحجز: " + res.message); }
+      } catch (err) { alert("خطأ في الاتصال بالخادم."); } 
+      finally { hideLoader(); }
+    }
+
+    // --- مشغل الفيديو ---
+    function togglePlayPauseFromShield() { if (activePlyrInstance) activePlyrInstance.togglePlay(); }
 
     function extractYouTubeID(url) {
       if (!url) return null;
@@ -464,69 +455,38 @@
       return (match && match[2].length === 11) ? match[2] : null;
     }
 
-    function togglePlayPauseFromShield() {
-      if (activePlyrInstance) {
-        activePlyrInstance.togglePlay();
-      }
-    }
-
     function playStudentVideo(lessonId) {
       const lesson = studentLessonsCache.find(l => l.lessonId === lessonId);
       if (!lesson) return;
 
       const ytId = extractYouTubeID(lesson.videoUrl);
-      if (!ytId) {
-        alert("⚠️ رابط الفيديو غير صالح!");
-        return;
-      }
+      if (!ytId) { alert("⚠️ رابط الفيديو غير صالح!"); return; }
 
       document.getElementById("studentVideoTitle").innerText = lesson.title;
-      const modal = document.getElementById("studentVideoModal");
-      modal.classList.remove("hidden");
+      document.getElementById("studentVideoModal").classList.remove("hidden");
 
       const mount = document.getElementById("studentVideoMount");
       mount.innerHTML = `
         <div class="plyr__video-embed" id="player">
-          <iframe 
-            src="https://www.youtube-nocookie.com/embed/${ytId}?origin=${encodeURIComponent(window.location.origin)}&iv_load_policy=3&modestbranding=1&playsinline=1&showinfo=0&rel=0&controls=0&disablekb=1&fs=0&enablejsapi=1" 
-            allowfullscreen 
-            allow="autoplay">
-          </iframe>
+          <iframe src="https://www.youtube-nocookie.com/embed/${ytId}?origin=${encodeURIComponent(window.location.origin)}&iv_load_policy=3&modestbranding=1&playsinline=1&showinfo=0&rel=0&controls=0&disablekb=1&fs=0&enablejsapi=1" allowfullscreen allow="autoplay"></iframe>
         </div>
       `;
 
-      if (activePlyrInstance) {
-        try { activePlyrInstance.destroy(); } catch(e) {}
-      }
+      if (activePlyrInstance) { try { activePlyrInstance.destroy(); } catch(e) {} }
 
       setTimeout(() => {
         activePlyrInstance = new Plyr('#player', {
           controls: ['play-large', 'play', 'progress', 'current-time', 'mute', 'volume', 'fullscreen'],
-          ratio: '16:9',
-          autoplay: true,
-          autopause: false,
-          fullscreen: { 
-            enabled: true, 
-            fallback: true, 
-            iosNative: false,
-            container: '#pureVideoStageBox'
-          },
-          keyboard: { focused: true, global: false },
-          storage: { enabled: false }
+          ratio: '16:9', autoplay: true, autopause: false,
+          fullscreen: { enabled: true, fallback: true, iosNative: false, container: '#pureVideoStageBox' },
+          keyboard: { focused: true, global: false }, storage: { enabled: false }
         });
       }, 100);
     }
 
     function closeStudentVideoModal() {
-      if (activePlyrInstance) {
-        try {
-          activePlyrInstance.stop();
-          activePlyrInstance.destroy();
-        } catch(e) {}
-        activePlyrInstance = null;
-      }
-      const mount = document.getElementById("studentVideoMount");
-      if (mount) mount.innerHTML = "";
+      if (activePlyrInstance) { try { activePlyrInstance.stop(); activePlyrInstance.destroy(); } catch(e) {} activePlyrInstance = null; }
+      document.getElementById("studentVideoMount").innerHTML = "";
       document.getElementById("studentVideoModal")?.classList.add("hidden");
     }
 
