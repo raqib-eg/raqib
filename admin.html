@@ -92,13 +92,13 @@
           <h1 class="font-black text-base md:text-lg text-white">رَقِـيـبْ - مركز القيادة السحابي</h1>
           <span class="text-[10px] text-emerald-400 font-bold tracking-wider flex items-center gap-1">
             <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
-            متصل بـ Firebase Realtime Database (نظام الشرائح)
+            متصل بـ Firebase Realtime Database
           </span>
         </div>
       </div>
       <div class="flex items-center gap-2">
         <button onclick="repairIndexesAction()" title="إصلاح فهارس الطلاب العالقة تلقائياً" class="text-xs bg-amber-500/10 text-amber-300 hover:bg-amber-500/20 px-3.5 py-2 rounded-xl font-bold transition btn-press flex items-center gap-1.5 border border-amber-500/20">
-          <i class="fa-solid fa-screwdriver-wrench"></i> فحص وإصلاح الفهارس
+          <i class="fa-solid fa-screwdriver-wrench"></i> فحص الفهارس
         </button>
         <button onclick="logoutAdmin()" class="text-xs bg-rose-500/10 text-rose-300 hover:bg-rose-500/20 px-4 py-2 rounded-xl font-bold transition btn-press">
           <i class="fa-solid fa-power-off"></i> خروج
@@ -135,14 +135,18 @@
     </div>
 
     <!-- TABS -->
-    <nav class="flex bg-slate-900/80 p-1.5 rounded-2xl border border-slate-800 gap-2 text-xs font-bold text-slate-400 max-w-lg">
-      <button onclick="switchAdminTab('teachers')" class="admin-nav-btn flex-1 py-2.5 rounded-xl text-white bg-indigo-600/90 shadow transition" data-tab="teachers">
-        <i class="fa-solid fa-chalkboard-user ml-1"></i> إدارة المعلمين ومحافظهم
+    <nav class="flex flex-wrap bg-slate-900/80 p-1.5 rounded-2xl border border-slate-800 gap-2 text-xs font-bold text-slate-400 max-w-2xl">
+      <button onclick="switchAdminTab('teachers')" class="admin-nav-btn flex-1 py-2.5 px-2 rounded-xl text-white bg-indigo-600/90 shadow transition relative" data-tab="teachers">
+        <i class="fa-solid fa-chalkboard-user ml-1"></i> إدارة المعلمين والمحافظ
       </button>
-      <button onclick="switchAdminTab('students')" class="admin-nav-btn flex-1 py-2.5 rounded-xl hover:text-white transition" data-tab="students">
-        <i class="fa-solid fa-users-gear ml-1"></i> إدارة وتفعيل الطلاب
+      <button onclick="switchAdminTab('students')" class="admin-nav-btn flex-1 py-2.5 px-2 rounded-xl hover:text-white transition relative" data-tab="students">
+        <i class="fa-solid fa-users-gear ml-1"></i> إدارة الطلاب
       </button>
-      <button onclick="switchAdminTab('add-teacher')" class="admin-nav-btn flex-1 py-2.5 rounded-xl hover:text-white transition" data-tab="add-teacher">
+      <button onclick="switchAdminTab('topups')" class="admin-nav-btn flex-1 py-2.5 px-2 rounded-xl hover:text-white transition relative" data-tab="topups">
+        <i class="fa-solid fa-money-bill-transfer ml-1"></i> طلبات الشحن
+        <span id="pendingTopupsBadge" class="hidden absolute -top-1 -right-1 bg-rose-500 text-white text-[9px] px-1.5 py-0.5 rounded-full animate-pulse shadow-lg">0</span>
+      </button>
+      <button onclick="switchAdminTab('add-teacher')" class="admin-nav-btn flex-1 py-2.5 px-2 rounded-xl hover:text-white transition relative" data-tab="add-teacher">
         <i class="fa-solid fa-user-plus ml-1"></i> إنشاء معلّم فوري
       </button>
     </nav>
@@ -176,7 +180,24 @@
       </div>
     </section>
 
-    <!-- 3. ADD / APPROVE TEACHER DIRECTLY TAB -->
+    <!-- 3. TOP-UP REQUESTS TAB -->
+    <section id="tab-topups" class="tab-content space-y-4">
+      <div class="flex justify-between items-center">
+        <div>
+          <h2 class="text-base font-black text-white">إدارة طلبات شحن المحافظ</h2>
+          <p class="text-xs text-slate-400 mt-0.5">اعتماد أو رفض طلبات شحن الأرصدة المقدمة من المعلمين</p>
+        </div>
+        <button onclick="loadTopUpRequests()" class="text-xs bg-slate-800 hover:bg-slate-700 text-slate-300 px-3 py-1.5 rounded-xl font-bold transition flex items-center gap-1.5 btn-press">
+          <i class="fa-solid fa-rotate-right"></i> تحديث الطلبات
+        </button>
+      </div>
+
+      <div id="adminTopUpList" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+        <p class="text-slate-500 text-xs text-center py-8 col-span-full">جاري جلب الطلبات المعلقة...</p>
+      </div>
+    </section>
+
+    <!-- 4. ADD / APPROVE TEACHER DIRECTLY TAB -->
     <section id="tab-add-teacher" class="tab-content space-y-4 max-w-xl mx-auto">
       <div class="glass-card p-6 rounded-3xl border border-white/10 space-y-4">
         <h3 class="font-black text-base text-white border-b border-slate-800 pb-2.5 flex items-center gap-2">
@@ -216,7 +237,7 @@
 
   </div>
 
-  <!-- نافذة نقل الطالب لمعلم آخر (Transfer Modal) -->
+  <!-- TRANSFER STUDENT MODAL -->
   <div id="transferStudentModal" class="hidden fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
     <div class="glass-card rounded-3xl p-6 w-full max-w-sm border border-white/10 space-y-4 text-right">
       <h3 class="font-black text-sm text-white border-b border-slate-800 pb-2">نقل الطالب لمعلم آخر</h3>
@@ -241,13 +262,16 @@
       dbApproveTeacherDirect, 
       dbToggleStudentActivation, 
       dbTransferStudent, 
-      dbRepairAllStudentIndexes 
+      dbRepairAllStudentIndexes,
+      dbGetAdminTopUpRequests,
+      dbAdminResolveWalletTopUp
     } from "./firebase-engine.js";
 
     const SUPER_ADMIN_SECRET = "raqib2026";
 
     let cachedTeachers = [];
     let cachedStudents = [];
+    let cachedTopUpRequests = [];
 
     window.logoutAdmin = logoutAdmin;
     window.switchAdminTab = switchAdminTab;
@@ -258,6 +282,8 @@
     window.confirmTransferStudentAction = confirmTransferStudentAction;
     window.repairIndexesAction = repairIndexesAction;
     window.loadAdminWorkspace = loadAdminWorkspace;
+    window.loadTopUpRequests = loadTopUpRequests;
+    window.resolveTopUpAction = resolveTopUpAction;
 
     function showLoader(txt = "جاري المعالجة...") {
       document.getElementById("loaderText").innerText = txt;
@@ -304,6 +330,9 @@
           updateStats();
           renderTeachers();
           renderStudents(cachedStudents);
+
+          // استدعاء وعرض طلبات الشحن
+          await loadTopUpRequests();
         } else {
           alert("خطأ أثناء جلب البيانات: " + res.message);
         }
@@ -326,7 +355,7 @@
       let totalExpectedRevenue = 0;
 
       cachedTeachers.forEach(t => {
-        const tStudents = cachedStudents.filter(s => s.teacherId === t.id);
+        const tStudents = cachedStudents.filter(s => s.teacherId === t.id && s.isActive);
         const count = tStudents.length;
         const rate = calculateTierRate(count);
         totalExpectedRevenue += count * rate;
@@ -335,7 +364,7 @@
 
       document.getElementById("statTotalTeachers").innerText = cachedTeachers.length;
       document.getElementById("statTotalStudents").innerText = cachedStudents.length;
-      document.getElementById("statActiveWalletsTotal").innerText = `${totalWallets} ج.م`;
+      document.getElementById("statActiveWalletsTotal").innerText = `${totalWallets.toFixed(2)} ج.م`;
       document.getElementById("statExpectedMonthlyRevenue").innerText = `${Math.round(totalExpectedRevenue)} ج.م`;
     }
 
@@ -368,7 +397,7 @@
             </div>
             <div class="text-slate-300 space-y-1">
               <div>المادة: <strong class="text-white">${t.subject}</strong> | الطلاب: <strong class="text-indigo-300">${count} طالب</strong></div>
-              <div>رصيد المحفظة: <strong class="text-emerald-400">${balance} ج.م</strong></div>
+              <div>رصيد المحفظة: <strong class="${balance < monthlyCost ? 'text-rose-400' : 'text-emerald-400'}">${balance.toFixed(2)} ج.م</strong></div>
               <div>التحقق الشهري (شريحة ${rate} ج): <strong class="text-amber-400">${monthlyCost} ج.م</strong></div>
             </div>
           </div>
@@ -535,15 +564,106 @@
       }
     });
 
+    // =====================================
+    // منطق طلبات الشحن (Top-up Requests)
+    // =====================================
+    async function loadTopUpRequests() {
+      try {
+        const requests = await dbGetAdminTopUpRequests();
+        cachedTopUpRequests = requests || [];
+        renderTopUpRequests();
+      } catch (e) {
+        console.error("Error loading topups", e);
+      }
+    }
+
+    function renderTopUpRequests() {
+      const container = document.getElementById("adminTopUpList");
+      const badge = document.getElementById("pendingTopupsBadge");
+      if (!container) return;
+
+      const pendingReqs = cachedTopUpRequests.filter(r => r.status === "Pending");
+      
+      if (badge) {
+        if (pendingReqs.length > 0) {
+          badge.innerText = pendingReqs.length;
+          badge.classList.remove("hidden");
+        } else {
+          badge.classList.add("hidden");
+        }
+      }
+
+      if (cachedTopUpRequests.length === 0) {
+        container.innerHTML = '<p class="text-slate-500 text-xs text-center py-8 col-span-full">لا توجد طلبات شحن مسجلة.</p>';
+        return;
+      }
+
+      container.innerHTML = cachedTopUpRequests.sort((a, b) => b.timestamp - a.timestamp).map(req => {
+        const isPending = req.status === "Pending";
+        const isApproved = req.status === "Approved";
+        
+        return `
+          <div class="glass-card p-4 rounded-2xl border space-y-3 text-xs">
+            <div class="flex justify-between items-start border-b border-slate-800 pb-2">
+              <div>
+                <div class="font-bold text-white text-sm">${req.teacherName}</div>
+                <div class="text-[10px] text-slate-400 font-mono">الطلب: [${req.requestId}] | المعلم: [${req.teacherId}]</div>
+              </div>
+              <span class="px-2 py-1 rounded-md text-[10px] font-bold ${isPending ? 'bg-amber-500/20 text-amber-400' : (isApproved ? 'bg-emerald-500/20 text-emerald-400' : 'bg-rose-500/20 text-rose-400')}">
+                ${isPending ? 'معلق ⏳' : (isApproved ? 'مقبول ✓' : 'مرفوض ✕')}
+              </span>
+            </div>
+            
+            <div class="flex justify-between items-center">
+              <div class="text-slate-300">المبلغ المطلوب شحنه:</div>
+              <div class="text-lg font-black text-emerald-400">${req.amount} ج.م</div>
+            </div>
+            <div class="text-[10px] text-slate-500">تاريخ الطلب: ${req.createdAt}</div>
+
+            ${isPending ? `
+              <div class="flex gap-2 pt-2 border-t border-slate-800">
+                <button onclick="resolveTopUpAction('${req.requestId}', '${req.teacherId}',${req.amount}, true)" class="flex-1 bg-emerald-600 hover:bg-emerald-500 text-white py-2 rounded-xl font-bold transition btn-press">
+                  موافقة
+                </button>
+                <button onclick="resolveTopUpAction('${req.requestId}', '${req.teacherId}',${req.amount}, false)" class="flex-1 bg-rose-600 hover:bg-rose-500 text-white py-2 rounded-xl font-bold transition btn-press">
+                  رفض
+                </button>
+              </div>
+            ` : ''}
+          </div>
+        `;
+      }).join('');
+    }
+
+    async function resolveTopUpAction(reqId, teacherId, amount, isApproved) {
+      const actionText = isApproved ? "الموافقة على شحن" : "رفض شحن";
+      if (!confirm(`هل أنت متأكد من ${actionText} مبلغ (${amount} ج.م) لهذا المعلم؟`)) return;
+
+      showLoader("جاري معالجة الطلب في Firebase...");
+      try {
+        const res = await dbAdminResolveWalletTopUp(reqId, teacherId, amount, isApproved);
+        if (res.status === "success") {
+          alert(isApproved ? "✅ تم إضافة الرصيد لمحفظة المعلم بنجاح!" : "❌ تم رفض الطلب بنجاح.");
+          await loadAdminWorkspace(); 
+        } else {
+          alert("تعذر تنفيذ العملية: " + res.message);
+        }
+      } catch (e) {
+        alert("حدث خطأ في الاتصال.");
+      } finally {
+        hideLoader();
+      }
+    }
+
     function switchAdminTab(tabId) {
       document.querySelectorAll(".tab-content").forEach(el => el.classList.remove("active"));
       document.getElementById(`tab-${tabId}`)?.classList.add("active");
 
       document.querySelectorAll(".admin-nav-btn").forEach(btn => {
         if (btn.dataset.tab === tabId) {
-          btn.className = "admin-nav-btn flex-1 py-2.5 rounded-xl text-white bg-indigo-600/90 shadow transition";
+          btn.className = "admin-nav-btn flex-1 py-2.5 px-2 rounded-xl text-white bg-indigo-600/90 shadow transition relative";
         } else {
-          btn.className = "admin-nav-btn flex-1 py-2.5 rounded-xl hover:text-white transition";
+          btn.className = "admin-nav-btn flex-1 py-2.5 px-2 rounded-xl hover:text-white transition relative";
         }
       });
     }
