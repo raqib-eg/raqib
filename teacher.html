@@ -2934,17 +2934,38 @@
       hideLoader();
     }
 
-    async function deleteLesson(id) {
-      if (!confirm("هل أنت متأكد من حذف هذه الحصة؟")) return;
-      showLoader("جاري الحذف...");
-      try {
-        allLessons = allLessons.filter(l => l.lessonId !== id);
-        renderLessonsTab();
-        showToast("تم إزالة الحصة", "success");
-      } finally {
-        hideLoader();
-      }
+async function deleteLesson(id) {
+  if (!confirm("هل أنت متأكد من حذف هذه الحصة نهائياً؟")) return;
+  showLoader("جاري الحذف السحابي...");
+  try {
+    const res = await dbDeleteLesson(currentTeacher.id, id);
+    if (res.status === "success") {
+      allLessons = allLessons.filter(l => l.lessonId !== id);
+      renderLessonsTab();
+      showToast("تم حذف الحصة بنجاح", "success");
+    } else {
+      showToast("فشل الحذف من السحابة", "error");
     }
+  } finally {
+    hideLoader();
+  }
+}
+
+async function fulfillBookReservation(index) {
+  const res = bookReservations[index];
+  if (!res) return;
+  showLoader("جاري تحديث حالة الحجز...");
+  try {
+    await dbUpdateBookReservationStatus(currentTeacher.id, res.id, "مؤكد وتم التسليم");
+    bookReservations[index].status = "مؤكد وتم التسليم";
+    renderBooksTab();
+    showToast("✅ تم تأكيد تسليم الملزمة وتحديث السحابة!", "success");
+  } catch(e) {
+    showToast("حدث خطأ أثناء التحديث", "error");
+  } finally {
+    hideLoader();
+  }
+}
 
     function openLessonAccessModal(lessonId) {
       activeLessonForAccess = allLessons.find(l => l.lessonId === lessonId);
