@@ -269,10 +269,15 @@
       await loadBooks();
     }
 
-    function renderDashboard() {
+function renderDashboard() {
       document.getElementById("headerStudentName").innerText = currentStudent.name;
-      document.getElementById("headerWalletBalance").innerText = `${currentStudent.walletBalance || 0} ج.م`;
-      document.getElementById("headerTeacherName").innerText = currentStudent.teacherName || "أستاذ المادة";
+      
+      const walletEl = document.getElementById("headerWalletBalance");
+      if (walletEl) walletEl.innerText = `${currentStudent.walletBalance || 0} ج.م`;
+      
+      // تأمين العنصر في حال تم إخفاؤه من الواجهة
+      const teacherNameEl = document.getElementById("headerTeacherName");
+      if (teacherNameEl) teacherNameEl.innerText = currentStudent.teacherName || "أستاذ المادة";
       
       document.getElementById("cardStudentName").innerText = currentStudent.name;
       document.getElementById("cardStudentId").innerText = currentStudent.id;
