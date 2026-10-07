@@ -748,36 +748,39 @@
             </div>
           </div>
 
-          <!-- Access Codes Generator Modal -->
-          <div id="accessCodeModal" class="hidden fixed inset-0 bg-slate-900/80 z-50 flex items-center justify-center p-4">
-            <div class="bg-white rounded-3xl p-5 md:p-6 w-full max-w-md shadow-2xl border border-slate-200 space-y-4 text-right">
+<!-- Access Codes Generator & Wallet Modal -->
+          <div id="accessCodeModal" class="hidden fixed inset-0 bg-slate-900/90 z-50 flex items-center justify-center p-4">
+            <div class="bg-white rounded-3xl p-5 md:p-6 w-full max-w-2xl shadow-2xl border border-slate-200 space-y-4 text-right max-h-[90vh] flex flex-col">
               <div class="flex justify-between items-center border-b pb-2">
-                <h3 class="font-black text-sm md:text-base text-slate-800">توليد أكواد تفعيل الحصص المدفوعة</h3>
+                <h3 class="font-black text-sm md:text-base text-slate-800"><i class="fa-solid fa-wallet text-purple-600"></i> محفظة وتوليد أكواد الشحن</h3>
                 <button onclick="closeAccessCodeGeneratorModal()" class="text-slate-400 hover:text-slate-700 font-bold text-xl">&times;</button>
               </div>
               
-              <div>
-                <label class="block text-xs font-bold text-slate-600 mb-1">اختر الحصة المدفوعة المستهدفة *</label>
-                <select id="codeGenLessonSelect" class="w-full p-3 border rounded-xl text-xs bg-slate-50 outline-none font-semibold"></select>
-              </div>
-
-              <div class="grid grid-cols-2 gap-3">
-                <div>
-                  <label class="block text-xs font-bold text-slate-600 mb-1">عدد الأكواد المطلوبة *</label>
-                  <input type="number" id="codeGenCount" value="5" min="1" max="50" class="w-full p-2.5 border rounded-xl text-xs bg-slate-50 outline-none font-bold">
+              <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200 space-y-3">
+                <h4 class="font-bold text-xs text-slate-700">توليد أكواد جديدة للطاب:</h4>
+                <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
+                  <div>
+                    <label class="block text-xs font-bold text-slate-600 mb-1">العدد *</label>
+                    <input type="number" id="codeGenCount" value="5" min="1" max="50" class="w-full p-2.5 border rounded-xl text-xs bg-white outline-none font-bold">
+                  </div>
+                  <div>
+                    <label class="block text-xs font-bold text-slate-600 mb-1">قيمة الكود (ج.م) *</label>
+                    <input type="number" id="codeGenPrice" placeholder="مثال: 50" class="w-full p-2.5 border rounded-xl text-xs bg-white outline-none font-bold text-emerald-600">
+                  </div>
+                  <div class="flex items-end">
+                    <button onclick="generateAndSaveAccessCodes()" class="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-2.5 rounded-xl text-xs btn-press h-[38px]">توليد الأكواد 🔑</button>
+                  </div>
                 </div>
-                <div>
-                  <label class="block text-xs font-bold text-slate-600 mb-1">قيمة الكود (ج.م)</label>
-                  <input type="number" id="codeGenPrice" readonly class="w-full p-2.5 border rounded-xl text-xs bg-slate-100 outline-none font-bold text-emerald-600">
+              </div>
+
+              <div class="flex-1 overflow-hidden flex flex-col space-y-2">
+                <h4 class="font-bold text-xs text-slate-700">سجل الأكواد المُصدرة:</h4>
+                <div id="teacherCodesWalletList" class="flex-1 overflow-y-auto space-y-2 p-2 border rounded-xl bg-slate-50 text-xs">
+                  <p class="text-center text-slate-400 py-4">جاري جلب الأكواد...</p>
                 </div>
               </div>
 
-              <div id="generatedCodesOutput" class="hidden max-h-40 overflow-y-auto p-2.5 bg-slate-50 border rounded-xl font-mono text-xs space-y-1"></div>
-
-              <div class="flex gap-2 pt-2">
-                <button onclick="generateAndSaveAccessCodes()" class="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-2.5 rounded-xl text-xs btn-press">توليد ونسخ الأكواد 🔑</button>
-                <button onclick="closeAccessCodeGeneratorModal()" class="w-full bg-slate-200 text-slate-700 font-bold py-2.5 rounded-xl text-xs">إغلاق</button>
-              </div>
+              <button onclick="closeAccessCodeGeneratorModal()" class="w-full bg-slate-800 text-white font-bold py-3 rounded-xl text-xs btn-press">إغلاق المحفظة</button>
             </div>
           </div>
 
