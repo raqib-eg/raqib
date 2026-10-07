@@ -943,3 +943,10 @@ export async function dbDeleteBook(teacherId, bookId) {
     return { status: "error", message: e.toString() };
   }
 }
+
+export function calculateTierRate(studentCount) {
+  if (studentCount > 1000) return 1.55;
+  if (studentCount > 500) return 1.80;
+  if (studentCount > 300) return 2.00;
+  return 2.34;
+}
