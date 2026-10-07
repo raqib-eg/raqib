@@ -913,3 +913,15 @@ export async function dbStudentBuyLesson(studentId, teacherId, lessonId, price) 
     return { status: "error", message: e.toString() };
   }
 }
+
+export async function dbGetStudentBooks(teacherId) {
+  try {
+    const cleanId = teacherId.toString().trim();
+    const snap = await get(ref(db, `content_vault/${cleanId}/books`));
+    if (!snap || !snap.exists()) return [];
+    const val = snap.val();
+    return Array.isArray(val) ? val.filter(Boolean) : Object.values(val);
+  } catch (e) {
+    return [];
+  }
+}
