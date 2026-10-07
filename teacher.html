@@ -24,8 +24,8 @@
       from { opacity: 0; transform: translateY(4px); }
       to { opacity: 1; transform: translateY(0); }
     }
-.hide-scrollbar::-webkit-scrollbar { display: none; }
-.hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    .hide-scrollbar::-webkit-scrollbar { display: none; }
+    .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
     .btn-press:active { transform: scale(0.96); }
 
     .spinner {
@@ -268,7 +268,7 @@
           </div>
         </section>
 
-        <!-- 1. CUSTOMIZATION TAB (إدارة شكل واجهة الطالب) -->
+        <!-- CUSTOMIZATION TAB -->
         <section id="tab-customization" class="tab-content space-y-6 max-w-2xl mx-auto">
           <div class="bg-white p-6 md:p-8 rounded-3xl shadow-sm border border-slate-200 space-y-5">
             <div>
@@ -281,7 +281,7 @@
                 <label class="block text-slate-600 mb-1">اختر اللون الرئيسي للواجهة:</label>
                 <div class="flex items-center gap-3">
                   <input type="color" id="customThemeColor" value="#4f46e5" class="w-12 h-10 rounded-xl cursor-pointer border p-1">
-                  <span class="text-slate-500">اختر لون الهوية الخاص بك (مثلاً: أزرق، بنفسجي، أخضر)</span>
+                  <span class="text-slate-500">اختر لون الهوية الخاص بك</span>
                 </div>
               </div>
 
@@ -328,7 +328,7 @@
             <div class="bg-gradient-to-br from-indigo-900 to-slate-900 text-white p-6 rounded-3xl shadow-lg relative overflow-hidden space-y-3">
               <div class="text-indigo-300 text-xs font-bold uppercase tracking-wider">الرصيد الحالي بالمحفظة</div>
               <div id="walletCurrentBalance" class="text-3xl md:text-4xl font-black text-emerald-400">0.00 ج.م</div>
-              <p class="text-[11px] text-slate-300">يتم خصم استهلاك الطلاب تلقائياً في بداية كل شهر ميلادي.</p>
+              <p class="text-[11px] text-slate-300">يتم الخصم ذرياً مع كل طالب جديد مضاف أو في التجديد الشهري.</p>
             </div>
 
             <div class="bg-white p-6 rounded-3xl shadow-sm border border-slate-200 space-y-2">
@@ -683,7 +683,7 @@
           <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
             <div>
               <h2 class="text-lg md:text-xl font-black text-slate-800">الحصص المسجلة وأكواد التفعيل</h2>
-              <p class="text-xs text-slate-500">رفع الفيديوهات برابط موحد وتوليد أكواد تفعيل مدفوعة للطلاب</p>
+              <p class="text-xs text-slate-500">رفع الفيديوهات برابط موحد وتوليد أكواد شحن مالية للطلاب</p>
             </div>
             <div class="flex gap-2 w-full sm:w-auto">
               <button onclick="openAccessCodeGeneratorModal()" class="flex-1 sm:flex-none bg-purple-600 hover:bg-purple-700 text-white text-xs font-bold px-4 py-2.5 rounded-xl shadow transition btn-press flex items-center justify-center gap-1.5">
@@ -748,7 +748,7 @@
             </div>
           </div>
 
-<!-- Access Codes Generator & Wallet Modal -->
+          <!-- Access Codes Generator Modal -->
           <div id="accessCodeModal" class="hidden fixed inset-0 bg-slate-900/90 z-50 flex items-center justify-center p-4">
             <div class="bg-white rounded-3xl p-5 md:p-6 w-full max-w-2xl shadow-2xl border border-slate-200 space-y-4 text-right max-h-[90vh] flex flex-col">
               <div class="flex justify-between items-center border-b pb-2">
@@ -757,7 +757,7 @@
               </div>
               
               <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200 space-y-3">
-                <h4 class="font-bold text-xs text-slate-700">توليد أكواد جديدة للطاب:</h4>
+                <h4 class="font-bold text-xs text-slate-700">توليد أكواد جديدة للطلاب:</h4>
                 <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
                   <div>
                     <label class="block text-xs font-bold text-slate-600 mb-1">العدد *</label>
@@ -886,7 +886,7 @@
           <div class="flex justify-between items-center">
             <div>
               <h2 class="text-lg md:text-xl font-black text-slate-800">إدارة المخزن والمذكرات</h2>
-              <p class="text-xs text-slate-500">جرد الكميات، متابعة الطلبات والحجوزات الواردة من تطبيق الطلاب</p>
+              <p class="text-xs text-slate-500">جرد الكميات، تحديد عربون الحجز، ومتابعة طلبات الطلاب مع استرداد أو تأكيد الحجز ذرياً</p>
             </div>
             <button onclick="openBookModal()" class="bg-amber-600 hover:bg-amber-700 text-white text-xs md:text-sm font-bold px-4 py-2.5 rounded-xl shadow flex items-center gap-1.5 transition btn-press">
               <i class="fa-solid fa-book-open"></i> ملزمة جديدة
@@ -921,7 +921,7 @@
           <!-- Student Book Reservations Section -->
           <div class="bg-white p-5 rounded-3xl border shadow-sm space-y-3">
             <h3 class="font-black text-sm text-slate-800 border-b pb-2 flex items-center gap-2">
-              <i class="fa-solid fa-clipboard-list text-indigo-600"></i> طلبات وحجوزات المذكرات الواردة من الطلاب
+              <i class="fa-solid fa-clipboard-list text-indigo-600"></i> طلبات وحجوزات المذكرات الواردة من الطلاب (مع دفع العربون)
             </h3>
             <div id="studentBookReservationsList" class="space-y-2">
               <p class="text-slate-400 text-center py-4 text-xs">لا توجد حجوزات مذكرات معلقة حتى الآن.</p>
@@ -929,7 +929,7 @@
           </div>
 
           <div id="bookModal" class="hidden bg-white p-5 md:p-6 rounded-3xl shadow-xl border border-slate-200 space-y-3 max-w-md mx-auto">
-            <h3 class="font-black text-sm md:text-base text-slate-800 border-b pb-2">إضافة ملزمة جديدة</h3>
+            <h3 class="font-black text-sm md:text-base text-slate-800 border-b pb-2">إضافة ملزمة جديدة وتحديد العربون</h3>
             <div>
               <label class="block text-[10px] font-bold text-slate-500 mb-1">عنوان الملزمة *</label>
               <input type="text" id="modalBookTitle" placeholder="مثال: مذكرة مراجعة ليلة الامتحان" class="w-full p-2.5 border rounded-xl text-xs md:text-sm bg-slate-50 outline-none">
@@ -938,10 +938,14 @@
               <label class="block text-[10px] font-bold text-slate-500 mb-1">الصف الدراسي *</label>
               <select id="modalBookGrade" class="w-full p-2.5 border rounded-xl text-xs md:text-sm bg-slate-50 outline-none"></select>
             </div>
-            <div class="grid grid-cols-2 gap-2">
+            <div class="grid grid-cols-3 gap-2">
               <div>
-                <label class="block text-[10px] font-bold text-slate-500 mb-1">السعر (ج.م) *</label>
-                <input type="number" id="modalBookPrice" placeholder="50" class="w-full p-2.5 border rounded-xl text-xs md:text-sm bg-slate-50 outline-none">
+                <label class="block text-[10px] font-bold text-slate-500 mb-1">السعر الإجمالي (ج.م) *</label>
+                <input type="number" id="modalBookPrice" placeholder="60" class="w-full p-2.5 border rounded-xl text-xs md:text-sm bg-slate-50 outline-none">
+              </div>
+              <div>
+                <label class="block text-[10px] font-bold text-slate-500 mb-1">عربون الحجز (ج.م)</label>
+                <input type="number" id="modalBookDeposit" placeholder="20" class="w-full p-2.5 border rounded-xl text-xs md:text-sm bg-slate-50 outline-none">
               </div>
               <div>
                 <label class="block text-[10px] font-bold text-slate-500 mb-1">الكمية المتوفرة *</label>
@@ -960,7 +964,7 @@
       </main>
     </div>
 
-    <!-- Student 360 Card Modal (مع فلترة الحضور والماليات حسب الشهر) -->
+    <!-- Student 360 Card Modal -->
     <div id="student360Modal" class="hidden fixed inset-0 bg-slate-900/80 z-50 flex items-center justify-center p-4">
       <div class="bg-white rounded-3xl p-5 md:p-6 w-full max-w-lg shadow-2xl border border-slate-200 space-y-4 text-right max-h-[90vh] overflow-y-auto">
         <div class="flex justify-between items-start border-b pb-3">
@@ -987,7 +991,7 @@
           <div>💳 إجمالي المسدد: <span id="profTotalPaid" class="font-bold text-blue-600">0 ج.م</span></div>
         </div>
 
-        <!-- فلتر اختيار الشهر المخصص -->
+        <!-- فلتر اختيار الشهر -->
         <div class="bg-indigo-50/70 p-3 rounded-2xl border border-indigo-100 flex items-center justify-between gap-2 text-xs">
           <span class="font-bold text-indigo-950">عرض بيانات الشهر:</span>
           <input type="month" id="profMonthFilter" onchange="renderStudent360FilteredData()" class="p-2 bg-white border border-indigo-200 rounded-xl font-bold text-xs outline-none">
@@ -1020,7 +1024,7 @@
       </div>
     </div>
 
-    <!-- Top Up Wallet Modal (شحن بانتظار تأكيد الأدمن) -->
+    <!-- Top Up Wallet Modal -->
     <div id="topUpModal" class="hidden fixed inset-0 bg-slate-900/80 z-50 flex items-center justify-center p-4">
       <div class="bg-white rounded-3xl p-6 w-full max-w-sm shadow-2xl border border-slate-200 space-y-4 text-right">
         <div class="flex justify-between items-center border-b pb-2">
@@ -1072,7 +1076,7 @@
       </div>
     </div>
 
-<!-- MOBILE NAVIGATION (Scrollable) -->
+    <!-- MOBILE NAVIGATION -->
     <nav class="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 flex overflow-x-auto p-2 z-30 shadow-2xl gap-5 px-4 hide-scrollbar">
       <button onclick="switchTab('dashboard')" class="mobile-nav-btn text-blue-600 flex flex-col items-center gap-1 text-[11px] font-bold min-w-max" data-tab="dashboard">
         <i class="fa-solid fa-chart-pie text-base"></i> الرئيسية
@@ -1104,7 +1108,8 @@
     </nav>
 
   </div>
-<!-- FIREBASE ENGINE SCRIPT -->
+
+  <!-- FIREBASE ENGINE SCRIPT -->
   <script type="module">
     import { 
       dbVerifyTeacher, 
@@ -1123,7 +1128,10 @@
       dbGetAttendanceSummary,
       dbSubmitWalletTopUpRequest,
       dbGetTeacherAccessCodes,
-      dbSaveAccessCodesBatch
+      dbSaveAccessCodesBatch,
+      calculateTierRate,
+      dbFulfillBookReservationAtomic,
+      dbCancelBookReservationAtomic
     } from "./firebase-engine.js";
 
     let currentTeacher = JSON.parse(localStorage.getItem("daftar_current_teacher")) || null;
@@ -1216,7 +1224,8 @@
     window.closeBookModal = closeBookModal;
     window.saveBook = saveBook;
     window.deleteBook = deleteBook;
-    window.fulfillBookReservation = fulfillBookReservation;
+    window.fulfillReservationAction = fulfillReservationAction;
+    window.cancelReservationAction = cancelReservationAction;
     window.logoutTeacher = logoutTeacher;
     window.exportAttendanceReportToExcel = exportAttendanceReportToExcel;
     window.openTopUpModal = openTopUpModal;
@@ -1449,6 +1458,19 @@
       }
     }
 
+    function calculateTierRateAndCost(studentCount) {
+      const rate = calculateTierRate(studentCount);
+      let tierName = "الشريحة الأولى (حتى 300 طالب)";
+      if (studentCount > 1000) {
+        tierName = "الشريحة الماسية (فوق 1000 طالب)";
+      } else if (studentCount > 500) {
+        tierName = "الشريحة الثالثة (حتى 1000 طالب)";
+      } else if (studentCount > 300) {
+        tierName = "الشريحة الثانية (حتى 500 طالب)";
+      }
+      return { rate, tierName, totalCost: Math.round(studentCount * rate * 100) / 100 };
+    }
+
     function checkLowBalanceAlert() {
       const studentCount = allStudents.length;
       const { totalCost } = calculateTierRateAndCost(studentCount);
@@ -1458,7 +1480,7 @@
       if (banner) {
         if (balance < totalCost && studentCount > 0) {
           banner.classList.remove("hidden");
-          document.getElementById("lowBalanceText").innerText = `⚠️ تنبيه: رصيد المحفظة الحالي (${balance} ج.م) أقل من التكلفة الشهرية المتوقعة (${totalCost} ج.م)! يرجى الشحن فوراً لتجنب إيقاف تفعيل الطلاب.`;
+          document.getElementById("lowBalanceText").innerText = `⚠️ تنبيه: رصيد المحفظة الحالي (${balance} ج.م) أقل من التكلفة الشهرية المتوقعة (${totalCost} ج.م)! يرجى الشحن فوراً.`;
         } else {
           banner.classList.add("hidden");
         }
@@ -1468,9 +1490,6 @@
     function updateDashboardStats() {
       const statStudents = document.getElementById("statTotalStudents");
       if (statStudents) statStudents.innerText = allStudents.length;
-
-      const statClasses = document.getElementById("statTotalClasses");
-      if (statClasses) statClasses.innerText = allClasses.length;
 
       const statExams = document.getElementById("statTotalExams");
       if (statExams) statExams.innerText = allExams.length;
@@ -1485,22 +1504,6 @@
       
       const statToday = document.getElementById("statTodayPayments");
       if (statToday) statToday.innerText = `${todayTotal} ج.م`;
-    }
-
-    function calculateTierRateAndCost(studentCount) {
-      let rate = 2.34;
-      let tierName = "الشريحة الأولى (حتى 300 طالب)";
-      if (studentCount > 1000) {
-        rate = 1.55;
-        tierName = "الشريحة الماسية (فوق 1000 طالب)";
-      } else if (studentCount > 500) {
-        rate = 1.80;
-        tierName = "الشريحة الثالثة (حتى 1000 طالب)";
-      } else if (studentCount > 300) {
-        rate = 2.00;
-        tierName = "الشريحة الثانية (حتى 500 طالب)";
-      }
-      return { rate, tierName, totalCost: Math.round(studentCount * rate * 100) / 100 };
     }
 
     function renderWalletTab() {
@@ -2215,46 +2218,26 @@
 
       const isNew = !originalId;
 
-      if (isNew) {
-        const studentCount = allStudents.length;
-        const { rate } = calculateTierRateAndCost(studentCount + 1);
-        const balance = Number(walletData.balance || 0);
-
-        if (balance < rate) {
-          showToast(`❌ رصيد المحفظة الحالي (${balance} ج.م) لا يكفي لتغطية تكلفة إضافة الطالب الجديد الشريحة (${rate} ج.م)! يرجى شحن المحفظة أولاً.`, "error");
-          return;
-        }
-
-        walletData.balance = Math.round((balance - rate) * 100) / 100;
-        if (!Array.isArray(walletData.transactions)) {
-           walletData.transactions = walletData.transactions ? Object.values(walletData.transactions) : [];
-        }
-        walletData.transactions.push({
-          id: "FEE-" + Math.floor(1000 + Math.random() * 9000),
-          type: `خصم اشتراك طالب جديد [ID: ${rawId}]`,
-          amount: -rate,
-          date: Utilities_getTodayFormatted()
-        });
-      }
-
-      showLoader("جاري حفظ بيانات الطالب وتحديث الرصيد...");
-      const studentObj = { id: rawId, name, phone, parentPhone, grade, groupCode, discountType, discountValue, notes };
+      showLoader("جاري حفظ بيانات الطالب والتأكيد الذري في Firebase...");
+      const studentObj = { 
+        id: rawId, 
+        name, 
+        phone, 
+        parentPhone, 
+        grade, 
+        groupCode, 
+        discountType, 
+        discountValue, 
+        notes,
+        walletBalance: 0
+      };
 
       const result = await dbSaveStudent(currentTeacher.id, studentObj, isNew);
 
       if (result && result.status === "success") {
-        if (originalId) {
-          const idx = allStudents.findIndex(s => s.id === originalId);
-          allStudents[idx] = studentObj;
-        } else {
-          allStudents.push(studentObj);
-        }
-        renderStudentsTab();
-        updateDashboardStats();
-        renderWalletTab();
-        checkLowBalanceAlert();
+        await loadAllData();
         closeStudentModal();
-        showToast("تم حفظ بيانات الطالب وخصم التكلفة الشهرية بنجاح! 🚀", "success");
+        showToast("تم حفظ بيانات الطالب وخصم التكلفة الشهرية ذرياً بنجاح! 🚀", "success");
       } else {
         showToast(result.message || "تعذر الحفظ.", "error");
       }
@@ -2830,8 +2813,6 @@
       document.getElementById("lessonModal")?.classList.add("hidden");
     }
 
-    // --- نظام محفظة الأكواد المالية للمعلم ---
-
     async function openAccessCodeGeneratorModal() {
       document.getElementById("accessCodeModal")?.classList.remove("hidden");
       await loadTeacherCodesWallet();
@@ -2902,7 +2883,6 @@
       }
       hideLoader();
     }
-    // ----------------------------------------
 
     async function saveLesson() {
       const title = document.getElementById("modalLessonTitle")?.value.trim();
@@ -3336,10 +3316,10 @@
       if (!container) return;
 
       const totalBooksQty = allBooks.reduce((sum, b) => sum + Number(b.stock || 0), 0);
-      const reservedCount = bookReservations.filter(r => r.status === "معلق").reduce((sum, r) => sum + Number(r.qty || 1), 0);
-      const remainingStock = Math.max(0, totalBooksQty - reservedCount);
+      const reservedCount = bookReservations.filter(r => r.status && r.status.includes("معلق")).reduce((sum, r) => sum + Number(r.qty || 1), 0);
+      const remainingStock = Math.max(0, totalBooksQty);
 
-      document.getElementById("invTotalBooks").innerText = totalBooksQty;
+      document.getElementById("invTotalBooks").innerText = totalBooksQty + reservedCount;
       document.getElementById("invReservedBooks").innerText = reservedCount;
       document.getElementById("invRemainingStock").innerText = remainingStock;
 
@@ -3347,19 +3327,38 @@
         if (bookReservations.length === 0) {
           reservationsContainer.innerHTML = '<p class="text-slate-400 text-center py-3 text-xs">لا توجد حجوزات مذكرات معلقة حتى الآن.</p>';
         } else {
-          reservationsContainer.innerHTML = bookReservations.map((res, index) => `
-            <div class="p-3 bg-slate-50 border rounded-2xl flex justify-between items-center text-xs">
-              <div>
-                <div class="font-bold text-slate-800">${res.studentName} - حجز (${res.bookTitle})</div>
-                <div class="text-[10px] text-slate-500">📅 ${res.date} | الكمية: ${res.qty} نسخة | الحالة: <strong class="${res.status === 'معلق' ? 'text-amber-600' : 'text-emerald-600'}">${res.status}</strong></div>
+          reservationsContainer.innerHTML = bookReservations.map(res => {
+            const isPending = res.status && res.status.includes("معلق");
+            const isDelivered = res.status && res.status.includes("تم التسليم");
+
+            return `
+              <div class="p-3.5 bg-slate-50 border rounded-2xl flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 text-xs">
+                <div>
+                  <div class="font-bold text-slate-800 text-sm">${res.studentName} - حجز (${res.bookTitle})</div>
+                  <div class="text-[10px] text-slate-500 mt-0.5">
+                    📅 ${res.date} | الكمية: ${res.qty} | العربون المدفوع: <strong class="text-emerald-600">${res.depositPaid || 0} ج.م</strong> | المتبقي: <strong class="text-rose-600">${res.remainingAmount || 0} ج.م</strong>
+                  </div>
+                  <div class="mt-1">
+                    <span class="px-2 py-0.5 rounded text-[10px] font-bold ${isPending ? 'bg-amber-100 text-amber-800' : (isDelivered ? 'bg-emerald-100 text-emerald-800' : 'bg-rose-100 text-rose-800')}">
+                      ${res.status}
+                    </span>
+                  </div>
+                </div>
+                ${isPending ? `
+                  <div class="flex gap-1.5 w-full sm:w-auto justify-end">
+                    <button onclick="fulfillReservationAction('${res.id}')" class="bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-1.5 rounded-xl font-bold btn-press">
+                      تأكيد التسليم والمتبقي ✓
+                    </button>
+                    <button onclick="cancelReservationAction('${res.id}')" class="bg-rose-50 hover:bg-rose-100 text-rose-600 border border-rose-200 px-3 py-1.5 rounded-xl font-bold btn-press">
+                      إلغاء ورد العربون ✕
+                    </button>
+                  </div>
+                ` : `
+                  <span class="text-xs text-slate-400 font-bold">${isDelivered ? 'مكتمل ✓' : 'ملغي'}</span>
+                `}
               </div>
-              ${res.status === 'معلق' ? `
-                <button onclick="fulfillBookReservation(${index})" class="bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-1.5 rounded-xl font-bold btn-press">
-                  تأكيد وتسليم النسخة ✓
-                </button>
-              ` : '<span class="text-xs text-emerald-600 font-bold">تم التسليم ✓</span>'}
-            </div>
-          `).join('');
+            `;
+          }).join('');
         }
       }
 
@@ -3375,12 +3374,15 @@
               <div class="font-bold text-slate-800 text-sm">${b.title}</div>
               <div class="text-[10px] text-slate-500 mt-0.5">${b.grade}</div>
             </div>
-            <span class="font-bold text-amber-600 bg-amber-50 px-2.5 py-1 rounded-lg border border-amber-100 whitespace-nowrap">
-              ${b.price} ج.م
-            </span>
+            <div class="text-left">
+              <span class="font-bold text-amber-600 bg-amber-50 px-2 py-0.5 rounded border border-amber-100 whitespace-nowrap block">
+                ${b.price} ج.م
+              </span>
+              <span class="text-[9px] text-slate-500 block mt-0.5">عربون: ${b.depositAmount || 0} ج.م</span>
+            </div>
           </div>
           <div class="flex justify-between items-center text-slate-600 pt-1">
-            <div>الكمية المتاحة: <span class="font-bold text-slate-800">${b.stock} نسخة</span></div>
+            <div>الكمية بالمخزن: <span class="font-bold text-slate-800">${b.stock} نسخة</span></div>
             <button onclick="deleteBook('${b.bookId}')" class="text-rose-600 bg-rose-50 hover:bg-rose-100 font-bold text-xs p-2 rounded-lg transition btn-press">
               <i class="fa-solid fa-trash"></i>
             </button>
@@ -3389,10 +3391,30 @@
       `).join('');
     }
 
-    function fulfillBookReservation(index) {
-      bookReservations[index].status = "مؤكد وتم التسليم";
-      renderBooksTab();
-      showToast("✅ تم تأكيد تسليم الملزمة للطالب بنجاح!", "success");
+    async function fulfillReservationAction(resId) {
+      if (!confirm("هل ترغب في تأكيد تسليم النسخة للطالب وتحصيل المبلغ المتبقي؟")) return;
+      showLoader("جاري تأكيد التسليم...");
+      const res = await dbFulfillBookReservationAtomic(currentTeacher.id, resId, true);
+      if (res && res.status === "success") {
+        showToast("✅ تم تسليم الملزمة وتوثيق سداد المتبقي في السجل المالي!", "success");
+        await loadAllData();
+      } else {
+        showToast("خطأ: " + (res ? res.message : "فشلت العملية"), "error");
+      }
+      hideLoader();
+    }
+
+    async function cancelReservationAction(resId) {
+      if (!confirm("هل أنت متأكد من إلغاء الحجز؟ سيتم إعادة العربون تلقائياً لمحفظة الطالب وإرجاع النسخة للمخزن ذرياً.")) return;
+      showLoader("جاري إلغاء الحجز ورد العربون...");
+      const res = await dbCancelBookReservationAtomic(currentTeacher.id, resId);
+      if (res && res.status === "success") {
+        showToast(`✅ تم إلغاء الحجز واسترداد (${res.refundedAmount} ج.م) لمحفظة الطالب وإرجاع المخزون!`, "success");
+        await loadAllData();
+      } else {
+        showToast("خطأ: " + (res ? res.message : "فشلت العملية"), "error");
+      }
+      hideLoader();
     }
 
     function openBookModal() {
@@ -3407,17 +3429,23 @@
       const title = document.getElementById("modalBookTitle")?.value.trim();
       const grade = document.getElementById("modalBookGrade")?.value;
       const price = Number(document.getElementById("modalBookPrice")?.value || 0);
+      const depositAmount = Number(document.getElementById("modalBookDeposit")?.value || Math.round(price * 0.25));
       const stock = Number(document.getElementById("modalBookStock")?.value || 0);
 
-      if (!title || !grade) {
-        showToast("يرجى إدخال عنوان الملزمة والصف الدراسي!", "error");
+      if (!title || !grade || price <= 0) {
+        showToast("يرجى إدخال عنوان الملزمة، الصف، والسعر بشكل صحيح!", "error");
         return;
       }
 
-      showLoader("جاري إضافة الملزمة...");
+      showLoader("جاري إضافة الملزمة وتحديث بيانات المخزن...");
       const bookObj = {
         bookId: "BOK-" + Math.floor(100 + Math.random() * 900),
-        title, grade, price, stock
+        title, 
+        grade, 
+        price, 
+        depositAmount, 
+        stock, 
+        reservedCount: 0
       };
 
       const result = await dbSaveBook(currentTeacher.id, bookObj);
@@ -3425,7 +3453,7 @@
         allBooks.push(bookObj);
         renderBooksTab();
         closeBookModal();
-        showToast("تم تسجيل المذكرة في المخزن!", "success");
+        showToast("تم تسجيل المذكرة وتحديد عربون الحجز بنجاح!", "success");
       }
       hideLoader();
     }
@@ -3442,5 +3470,5 @@
       }
     }
   </script>
- </body>
+</body>
 </html>
