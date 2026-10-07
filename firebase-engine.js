@@ -1,5 +1,5 @@
 // =====================================================================
-// منظومة رَقِـيـبْ - محرك فايربيز فائق السرعة والموفر للباندويث (v23.2 - Final Fixed Version)
+// منظومة رَقِـيـبْ - محرك فايربيز فائق السرعة والموفر للباندويث (v24.0 - Full Upgraded Version)
 // =====================================================================
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
@@ -54,7 +54,6 @@ export async function dbGetTeacherWorkspace(teacherId) {
     const cleanId = teacherId.toString().trim();
     console.log("Fetching workspace safely for teacher:", cleanId);
 
-    // استخدام Promise.allSettled لتجنب خطأ Permission denied أو انهيار الوظيفة إذا فشل أحد المسارات الفرعية
     const results = await Promise.allSettled([
       get(ref(db, `teacher_students/${cleanId}`)),
       get(ref(db, `teachers/${cleanId}/groups`)),
@@ -62,7 +61,8 @@ export async function dbGetTeacherWorkspace(teacherId) {
       get(ref(db, `content_vault/${cleanId}/exams`)),
       get(ref(db, `content_vault/${cleanId}/books`)),
       get(ref(db, `payments_ledger/${cleanId}`)),
-      get(ref(db, `teachers/${cleanId}/wallet`)) // تم تعديل مسار المحفظة ليكون ضمن نطاق teachers المسموح به في الـ Rules
+      get(ref(db, `teachers/${cleanId}/wallet`)),
+      get(ref(db, `book_reservations/${cleanId}`))
     ]);
 
     const getValue = (result, fallback) => {
@@ -79,6 +79,7 @@ export async function dbGetTeacherWorkspace(teacherId) {
     };
 
     const walletVal = getValue(results[6], { balance: 0, transactions: [] });
+    const bookReservationsVal = toArr(results[7]);
 
     return {
       status: "success",
@@ -88,7 +89,8 @@ export async function dbGetTeacherWorkspace(teacherId) {
       exams: toArr(results[3]),
       books: toArr(results[4]),
       payments: toArr(results[5]),
-      wallet: walletVal
+      wallet: walletVal,
+      bookReservations: bookReservationsVal
     };
   } catch (e) {
     console.error("Error in dbGetTeacherWorkspace:", e);
@@ -678,6 +680,175 @@ export async function dbGetParentWorkspace(teacherId, studentId) {
       exams,
       payments: payments.reverse()
     };
+  } catch (e) {
+    return { status: "error", message: e.toString() };
+  }
+}
+
+// ==========================================
+// 4. ميزات إضافية للمخزن، شحن المحفظة، وأكواد الفيديوهات (Added Features v24.0)
+// ==========================================
+
+// أ. إدارة حجوزات ومخزن المذكرات سحابياً
+export async function dbSaveBookReservation(teacherId, reservation) {
+  try {
+    const cleanTId = teacherId.toString().trim();
+    const resId = reservation.id || "RES-" + Math.floor(1000 + Math.random() * 9000);
+    await set(ref(db, `book_reservations/${cleanTId}/${resId}`), {
+      ...reservation,
+      id: resId,
+      timestamp: Date.now()
+    });
+    return { status: "success", reservationId: resId };
+  } catch (e) {
+    return { status: "error", message: e.toString() };
+  }
+}
+
+export async function dbGetBookReservations(teacherId) {
+  try {
+    const cleanTId = teacherId.toString().trim();
+    const snap = await get(ref(db, `book_reservations/${cleanTId}`));
+    return snapshotToArray(snap);
+  } catch (e) {
+    return [];
+  }
+}
+
+export async function dbUpdateBookReservationStatus(teacherId, reservationId, newStatus) {
+  try {
+    const cleanTId = teacherId.toString().trim();
+    await update(ref(db, `book_reservations/${cleanTId}/${reservationId}`), { status: newStatus });
+    return { status: "success" };
+  } catch (e) {
+    return { status: "error", message: e.toString() };
+  }
+}
+
+// ب. نظام شحن المحفظة المعلق وتأكيد الأدمن
+export async function dbSubmitWalletTopUpRequest(teacherId, amount, teacherName) {
+  try {
+    const cleanTId = teacherId.toString().trim();
+    const reqId = "TOP-" + Math.floor(10000 + Math.random() * 90000);
+    const updates = {};
+    
+    updates[`wallet_topup_requests/${reqId}`] = {
+      requestId: reqId,
+      teacherId: cleanTId,
+      teacherName: teacherName || "معلم",
+      amount: Number(amount),
+      status: "Pending",
+      createdAt: new Date().toISOString().split("T")[0],
+      timestamp: Date.now()
+    };
+
+    updates[`teachers/${cleanTId}/wallet/transactions/${reqId}`] = {
+      id: reqId,
+      type: "طلب شحن معلق (بانتظار تأكيد الإدارة)",
+      amount: Number(amount),
+      date: new Date().toISOString().split("T")[0]
+    };
+
+    await update(ref(db), updates);
+    return { status: "success", requestId: reqId };
+  } catch (e) {
+    return { status: "error", message: e.toString() };
+  }
+}
+
+export async function dbGetAdminTopUpRequests() {
+  try {
+    const snap = await get(ref(db, "wallet_topup_requests"));
+    return snapshotToArray(snap);
+  } catch (e) {
+    return [];
+  }
+}
+
+export async function dbAdminResolveWalletTopUp(requestId, teacherId, amount, approve = true) {
+  try {
+    const cleanTId = teacherId.toString().trim();
+    const updates = {};
+    
+    if (approve) {
+      const walletSnap = await get(ref(db, `teachers/${cleanTId}/wallet`));
+      const currentWallet = walletSnap.exists() ? walletSnap.val() : { balance: 0, transactions: [] };
+      const newBalance = Number(currentWallet.balance || 0) + Number(amount);
+
+      updates[`teachers/${cleanTId}/wallet/balance`] = newBalance;
+      updates[`wallet_topup_requests/${requestId}/status`] = "Approved";
+      updates[`teachers/${cleanTId}/wallet/transactions/${requestId}/type`] = "شحن رصيد معتمد من الإدارة ✓";
+    } else {
+      updates[`wallet_topup_requests/${requestId}/status`] = "Rejected";
+      updates[`teachers/${cleanTId}/wallet/transactions/${requestId}/type`] = "طلب شحن مرفوض ✕";
+    }
+
+    await update(ref(db), updates);
+    return { status: "success" };
+  } catch (e) {
+    return { status: "error", message: e.toString() };
+  }
+}
+
+// ج. نظام توليد واستخدام أكواد تفعيل الفيديوهات المدفوعة
+export async function dbSaveAccessCodesBatch(teacherId, lessonId, codesList, price) {
+  try {
+    const cleanTId = teacherId.toString().trim();
+    const updates = {};
+    
+    codesList.forEach(code => {
+      updates[`access_codes/${cleanTId}/${code}`] = {
+        code,
+        lessonId,
+        price: Number(price),
+        isUsed: false,
+        usedByStudentId: null,
+        createdAt: new Date().toISOString().split("T")[0]
+      };
+    });
+
+    await update(ref(db), updates);
+    return { status: "success" };
+  } catch (e) {
+    return { status: "error", message: e.toString() };
+  }
+}
+
+export async function dbRedeemAccessCode(studentId, teacherId, codeText) {
+  try {
+    const cleanTId = teacherId.toString().trim();
+    const cleanCode = codeText.toString().trim().toUpperCase();
+    
+    const codeRef = ref(db, `access_codes/${cleanTId}/${cleanCode}`);
+    const codeSnap = await get(codeRef);
+
+    if (!codeSnap.exists()) {
+      return { status: "error", message: "❌ كود التفعيل غير صحيح!" };
+    }
+
+    const codeData = codeSnap.val();
+    if (codeData.isUsed) {
+      return { status: "error", message: "⚠️ هذا الكود مستخدم من قبل!" };
+    }
+
+    const updates = {};
+    updates[`access_codes/${cleanTId}/${cleanCode}/isUsed`] = true;
+    updates[`access_codes/${cleanTId}/${cleanCode}/usedByStudentId`] = studentId.toString();
+
+    const lessonRef = ref(db, `content_vault/${cleanTId}/lessons/${codeData.lessonId}`);
+    const lessonSnap = await get(lessonRef);
+
+    if (lessonSnap.exists()) {
+      const lesson = lessonSnap.val();
+      const unlocked = lesson.unlockedStudents || [];
+      if (!unlocked.includes(studentId.toString())) {
+        unlocked.push(studentId.toString());
+        updates[`content_vault/${cleanTId}/lessons/${codeData.lessonId}/unlockedStudents`] = unlocked;
+      }
+    }
+
+    await update(ref(db), updates);
+    return { status: "success", lessonId: codeData.lessonId };
   } catch (e) {
     return { status: "error", message: e.toString() };
   }
