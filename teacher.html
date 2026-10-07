@@ -1411,7 +1411,17 @@
           allLessons = wsRes.lessons || [];
           allExams = wsRes.exams || [];
           allBooks = wsRes.books || [];
+          
+          // --- التعديل لحل مشكلة المحفظة ---
           walletData = wsRes.wallet || { balance: 0, transactions: [] };
+          if (walletData.transactions && !Array.isArray(walletData.transactions)) {
+            // تحويل الـ Object القادم من فايربيز إلى Array
+            walletData.transactions = Object.values(walletData.transactions);
+          } else if (!walletData.transactions) {
+            walletData.transactions = [];
+          }
+          // ---------------------------------
+
           bookReservations = wsRes.bookReservations || [];
         }
 
@@ -2200,7 +2210,7 @@
 
       const isNew = !originalId;
 
-      if (isNew) {
+if (isNew) {
         const studentCount = allStudents.length;
         const { rate } = calculateTierRateAndCost(studentCount + 1);
         const balance = Number(walletData.balance || 0);
@@ -2210,8 +2220,14 @@
           return;
         }
 
+        // تحديث الواجهة محلياً (قاعدة البيانات تتحدث في الكود الخلفي الآن)
         walletData.balance = Math.round((balance - rate) * 100) / 100;
-        if (!walletData.transactions) walletData.transactions = [];
+        
+        // تأمين أخير لضمان أننا نتعامل مع مصفوفة قبل عمل Push
+        if (!Array.isArray(walletData.transactions)) {
+           walletData.transactions = walletData.transactions ? Object.values(walletData.transactions) : [];
+        }
+        
         walletData.transactions.push({
           id: "FEE-" + Math.floor(1000 + Math.random() * 9000),
           type: `خصم اشتراك طالب جديد [ID: ${rawId}]`,
