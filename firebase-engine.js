@@ -98,8 +98,7 @@ export async function dbGetTeacherWorkspace(teacherId) {
   }
 }
 
-// حساب سعر الطالب بناءً على نظام الشرائح الجديد
-function calculateTierRate(studentCount) {
+export function calculateTierRate(studentCount) {
   if (studentCount > 1000) return 1.55;
   if (studentCount > 500) return 1.80;
   if (studentCount > 300) return 2.00;
@@ -944,9 +943,4 @@ export async function dbDeleteBook(teacherId, bookId) {
   }
 }
 
-export function calculateTierRate(studentCount) {
-  if (studentCount > 1000) return 1.55;
-  if (studentCount > 500) return 1.80;
-  if (studentCount > 300) return 2.00;
-  return 2.34;
-}
+
