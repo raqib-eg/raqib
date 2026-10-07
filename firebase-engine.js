@@ -806,8 +806,8 @@ export async function dbAdminResolveWalletTopUp(requestId, teacherId, amount, ap
   }
 }
 
-// ج. نظام توليد واستخدام أكواد تفعيل الفيديوهات المدفوعة
-export async function dbSaveAccessCodesBatch(teacherId, lessonId, codesList, price) {
+// ج. نظام محفظة الطالب والأكواد المالية
+export async function dbSaveAccessCodesBatch(teacherId, codesList, value) {
   try {
     const cleanTId = teacherId.toString().trim();
     const updates = {};
@@ -815,8 +815,7 @@ export async function dbSaveAccessCodesBatch(teacherId, lessonId, codesList, pri
     codesList.forEach(code => {
       updates[`access_codes/${cleanTId}/${code}`] = {
         code,
-        lessonId,
-        price: Number(price),
+        value: Number(value), // القيمة المالية بدلاً من ربطها بحصة
         isUsed: false,
         usedByStudentId: null,
         createdAt: new Date().toISOString().split("T")[0]
@@ -830,6 +829,16 @@ export async function dbSaveAccessCodesBatch(teacherId, lessonId, codesList, pri
   }
 }
 
+export async function dbGetTeacherAccessCodes(teacherId) {
+  try {
+    const cleanTId = teacherId.toString().trim();
+    const snap = await get(ref(db, `access_codes/${cleanTId}`));
+    return snapshotToArray(snap);
+  } catch (e) {
+    return [];
+  }
+}
+
 export async function dbRedeemAccessCode(studentId, teacherId, codeText) {
   try {
     const cleanTId = teacherId.toString().trim();
@@ -839,32 +848,67 @@ export async function dbRedeemAccessCode(studentId, teacherId, codeText) {
     const codeSnap = await get(codeRef);
 
     if (!codeSnap.exists()) {
-      return { status: "error", message: "❌ كود التفعيل غير صحيح!" };
+      return { status: "error", message: "❌ كود الشحن غير صحيح!" };
     }
 
     const codeData = codeSnap.val();
     if (codeData.isUsed) {
-      return { status: "error", message: "⚠️ هذا الكود مستخدم من قبل!" };
+      return { status: "error", message: "⚠️ هذا الكود تم شحنه من قبل!" };
     }
+
+    // جلب رصيد الطالب الحالي
+    const stdRef = ref(db, `teacher_students/${cleanTId}/${studentId}`);
+    const stdSnap = await get(stdRef);
+    if(!stdSnap.exists()) return { status: "error", message: "بيانات الطالب غير موجودة" };
+    
+    let currentBalance = Number(stdSnap.val().walletBalance || 0);
+    let newBalance = currentBalance + Number(codeData.value);
 
     const updates = {};
+    // إغلاق الكود
     updates[`access_codes/${cleanTId}/${cleanCode}/isUsed`] = true;
     updates[`access_codes/${cleanTId}/${cleanCode}/usedByStudentId`] = studentId.toString();
-
-    const lessonRef = ref(db, `content_vault/${cleanTId}/lessons/${codeData.lessonId}`);
-    const lessonSnap = await get(lessonRef);
-
-    if (lessonSnap.exists()) {
-      const lesson = lessonSnap.val();
-      const unlocked = lesson.unlockedStudents || [];
-      if (!unlocked.includes(studentId.toString())) {
-        unlocked.push(studentId.toString());
-        updates[`content_vault/${cleanTId}/lessons/${codeData.lessonId}/unlockedStudents`] = unlocked;
-      }
-    }
+    // شحن رصيد الطالب
+    updates[`teacher_students/${cleanTId}/${studentId}/walletBalance`] = newBalance;
 
     await update(ref(db), updates);
-    return { status: "success", lessonId: codeData.lessonId };
+    return { status: "success", addedValue: codeData.value, newBalance: newBalance };
+  } catch (e) {
+    return { status: "error", message: e.toString() };
+  }
+}
+
+export async function dbStudentBuyLesson(studentId, teacherId, lessonId, price) {
+  try {
+    const cleanTId = teacherId.toString().trim();
+    
+    // التحقق من رصيد الطالب
+    const stdRef = ref(db, `teacher_students/${cleanTId}/${studentId}`);
+    const stdSnap = await get(stdRef);
+    let currentBalance = Number(stdSnap.val().walletBalance || 0);
+
+    if (currentBalance < price) {
+      return { status: "error", message: "رصيد محفظتك لا يكفي لشراء هذه الحصة! يرجى شحن الرصيد أولاً." };
+    }
+
+    const lessonRef = ref(db, `content_vault/${cleanTId}/lessons/${lessonId}`);
+    const lessonSnap = await get(lessonRef);
+    const lesson = lessonSnap.val();
+    const unlocked = lesson.unlockedStudents || [];
+
+    if (unlocked.includes(studentId.toString())) {
+      return { status: "error", message: "لديك صلاحية لهذه الحصة بالفعل!" };
+    }
+
+    unlocked.push(studentId.toString());
+    const newBalance = currentBalance - price;
+
+    const updates = {};
+    updates[`teacher_students/${cleanTId}/${studentId}/walletBalance`] = newBalance;
+    updates[`content_vault/${cleanTId}/lessons/${lessonId}/unlockedStudents`] = unlocked;
+
+    await update(ref(db), updates);
+    return { status: "success", newBalance: newBalance };
   } catch (e) {
     return { status: "error", message: e.toString() };
   }
