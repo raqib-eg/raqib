@@ -24,7 +24,8 @@
       from { opacity: 0; transform: translateY(4px); }
       to { opacity: 1; transform: translateY(0); }
     }
-
+.hide-scrollbar::-webkit-scrollbar { display: none; }
+.hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
     .btn-press:active { transform: scale(0.96); }
 
     .spinner {
@@ -1068,22 +1069,34 @@
       </div>
     </div>
 
-    <!-- MOBILE NAVIGATION -->
-    <nav class="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 flex justify-around p-2 z-30 shadow-2xl">
-      <button onclick="switchTab('dashboard')" class="mobile-nav-btn text-blue-600 flex flex-col items-center gap-1 text-[11px] font-bold" data-tab="dashboard">
+<!-- MOBILE NAVIGATION (Scrollable) -->
+    <nav class="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 flex overflow-x-auto p-2 z-30 shadow-2xl gap-5 px-4 hide-scrollbar">
+      <button onclick="switchTab('dashboard')" class="mobile-nav-btn text-blue-600 flex flex-col items-center gap-1 text-[11px] font-bold min-w-max" data-tab="dashboard">
         <i class="fa-solid fa-chart-pie text-base"></i> الرئيسية
       </button>
-      <button onclick="switchTab('customization')" class="mobile-nav-btn text-slate-400 flex flex-col items-center gap-1 text-[11px] font-bold" data-tab="customization">
-        <i class="fa-solid fa-palette text-base"></i> الواجهة
-      </button>
-      <button onclick="switchTab('wallet')" class="mobile-nav-btn text-slate-400 flex flex-col items-center gap-1 text-[11px] font-bold" data-tab="wallet">
-        <i class="fa-solid fa-wallet text-base"></i> المحفظة
-      </button>
-      <button onclick="switchTab('attendance')" class="mobile-nav-btn text-slate-400 flex flex-col items-center gap-1 text-[11px] font-bold" data-tab="attendance">
+      <button onclick="switchTab('attendance')" class="mobile-nav-btn text-slate-400 flex flex-col items-center gap-1 text-[11px] font-bold min-w-max" data-tab="attendance">
         <i class="fa-solid fa-clipboard-user text-base"></i> الحضور
       </button>
-      <button onclick="switchTab('students')" class="mobile-nav-btn text-slate-400 flex flex-col items-center gap-1 text-[11px] font-bold" data-tab="students">
+      <button onclick="switchTab('students')" class="mobile-nav-btn text-slate-400 flex flex-col items-center gap-1 text-[11px] font-bold min-w-max" data-tab="students">
         <i class="fa-solid fa-users text-base"></i> الطلاب
+      </button>
+      <button onclick="switchTab('classes')" class="mobile-nav-btn text-slate-400 flex flex-col items-center gap-1 text-[11px] font-bold min-w-max" data-tab="classes">
+        <i class="fa-solid fa-layer-group text-base"></i> المجموعات
+      </button>
+      <button onclick="switchTab('payments')" class="mobile-nav-btn text-slate-400 flex flex-col items-center gap-1 text-[11px] font-bold min-w-max" data-tab="payments">
+        <i class="fa-solid fa-receipt text-base"></i> الماليات
+      </button>
+      <button onclick="switchTab('lessons')" class="mobile-nav-btn text-slate-400 flex flex-col items-center gap-1 text-[11px] font-bold min-w-max" data-tab="lessons">
+        <i class="fa-solid fa-video text-base"></i> الحصص
+      </button>
+      <button onclick="switchTab('exams')" class="mobile-nav-btn text-slate-400 flex flex-col items-center gap-1 text-[11px] font-bold min-w-max" data-tab="exams">
+        <i class="fa-solid fa-file-pen text-base"></i> الامتحانات
+      </button>
+      <button onclick="switchTab('books')" class="mobile-nav-btn text-slate-400 flex flex-col items-center gap-1 text-[11px] font-bold min-w-max" data-tab="books">
+        <i class="fa-solid fa-book-open text-base"></i> المخزن
+      </button>
+      <button onclick="switchTab('wallet')" class="mobile-nav-btn text-slate-400 flex flex-col items-center gap-1 text-[11px] font-bold min-w-max" data-tab="wallet">
+        <i class="fa-solid fa-wallet text-base"></i> المحفظة
       </button>
     </nav>
 
