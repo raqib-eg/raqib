@@ -943,4 +943,30 @@ export async function dbDeleteBook(teacherId, bookId) {
   }
 }
 
+// إلغاء حجز المذكرة وإرجاع الكمية للمخزن بشكل آمن
+export async function dbCancelBookReservationAtomic(teacherId, reservationId, bookId, qty = 1) {
+  try {
+    const cleanTId = teacherId.toString().trim();
+    const cleanResId = reservationId.toString().trim();
+    const updates = {};
 
+    // 1. تحديث حالة الحجز إلى ملغي
+    updates[`book_reservations/${cleanTId}/${cleanResId}/status`] = "ملغي";
+
+    // 2. إذا تم تمرير معرف المذكرة، نقوم بزيادة المخزون بنفس الكمية الملغاة
+    if (bookId) {
+      const bookRef = ref(db, `content_vault/${cleanTId}/books/${bookId}`);
+      const bookSnap = await get(bookRef);
+      if (bookSnap.exists()) {
+        const currentStock = Number(bookSnap.val().stock || 0);
+        updates[`content_vault/${cleanTId}/books/${bookId}/stock`] = currentStock + Number(qty);
+      }
+    }
+
+    await update(ref(db), updates);
+    return { status: "success" };
+  } catch (e) {
+    console.error("Error in dbCancelBookReservationAtomic:", e);
+    return { status: "error", message: e.toString() };
+  }
+}
