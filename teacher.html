@@ -2193,7 +2193,7 @@
       document.getElementById("studentModal")?.classList.add("hidden");
     }
 
-    async function saveStudent() {
+async function saveStudent() {
       const originalId = document.getElementById("editStudentIdOriginal")?.value;
       const rawId = document.getElementById("modalStudentId")?.value.trim();
       const name = document.getElementById("modalStudentName")?.value.trim();
@@ -2218,26 +2218,24 @@
 
       const isNew = !originalId;
 
-      showLoader("جاري حفظ بيانات الطالب والتأكيد الذري في Firebase...");
-      const studentObj = { 
-        id: rawId, 
-        name, 
-        phone, 
-        parentPhone, 
-        grade, 
-        groupCode, 
-        discountType, 
-        discountValue, 
-        notes,
-        walletBalance: 0
-      };
+      showLoader("جاري حفظ بيانات الطالب والتحقق من المحفظة...");
+      const studentObj = { id: rawId, name, phone, parentPhone, grade, groupCode, discountType, discountValue, notes };
 
+      // نترك الخصم والتحقق بالكامل لمحرك Firebase لمنع تكرار الخصم
       const result = await dbSaveStudent(currentTeacher.id, studentObj, isNew);
 
       if (result && result.status === "success") {
+        if (originalId) {
+          const idx = allStudents.findIndex(s => s.id === originalId);
+          allStudents[idx] = studentObj;
+        } else {
+          allStudents.push(studentObj);
+        }
+        
+        // إعادة مزامنة بيانات الحساب والمحفظة من السيرفر مباشرة لضمان الدقة
         await loadAllData();
         closeStudentModal();
-        showToast("تم حفظ بيانات الطالب وخصم التكلفة الشهرية ذرياً بنجاح! 🚀", "success");
+        showToast("تم حفظ بيانات الطالب وتحديث الرصيد بنجاح! 🚀", "success");
       } else {
         showToast(result.message || "تعذر الحفظ.", "error");
       }
@@ -2935,20 +2933,20 @@
     }
 
 async function deleteLesson(id) {
-  if (!confirm("هل أنت متأكد من حذف هذه الحصة نهائياً؟")) return;
-  showLoader("جاري الحذف السحابي...");
-  try {
-    const res = await dbDeleteLesson(currentTeacher.id, id);
-    if (res.status === "success") {
-      allLessons = allLessons.filter(l => l.lessonId !== id);
-      renderLessonsTab();
-      showToast("تم حذف الحصة بنجاح", "success");
-    } else {
-      showToast("فشل الحذف من السحابة", "error");
-    }
-  } finally {
-    hideLoader();
-  }
+      if (!confirm("هل أنت متأكد من حذف هذه الحصة؟")) return;
+      showLoader("جاري الحذف السحابي...");
+      try {
+        const res = await dbDeleteLesson(currentTeacher.id, id);
+        if (res && res.status === "success") {
+          allLessons = allLessons.filter(l => l.lessonId !== id);
+          renderLessonsTab();
+          showToast("تم إزالة الحصة نهائياً", "success");
+        } else {
+          showToast("تعذر حذف الحصة من السحابة", "error");
+        }
+      } finally {
+        hideLoader();
+      }
 }
 
 async function fulfillBookReservation(index) {
@@ -3212,14 +3210,19 @@ async function fulfillBookReservation(index) {
       hideLoader();
     }
 
-    async function deleteExam(id) {
-      if (!confirm("هل أنت متأكد من حذف هذا الامتحان وجميع درجات الطلاب المرصودة به؟")) return;
-      showLoader("جاري الحذف...");
+async function deleteExam(id) {
+      if (!confirm("هل أنت متأكد من حذف هذا الامتحان؟")) return;
+      showLoader("جاري الحذف السحابي...");
       try {
-        allExams = allExams.filter(e => e.examId !== id);
-        renderExamsTab();
-        updateDashboardStats();
-        showToast("تم إزالة الامتحان من السجلات المحلية", "success");
+        const res = await dbDeleteExam(currentTeacher.id, id);
+        if (res && res.status === "success") {
+          allExams = allExams.filter(e => e.examId !== id);
+          renderExamsTab();
+          updateDashboardStats();
+          showToast("تم إزالة الامتحان نهائياً", "success");
+        } else {
+          showToast("تعذر حذف الامتحان من السحابة", "error");
+        }
       } finally {
         hideLoader();
       }
