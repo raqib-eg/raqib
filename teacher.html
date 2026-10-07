@@ -1104,8 +1104,7 @@
     </nav>
 
   </div>
-
-  <!-- FIREBASE ENGINE SCRIPT -->
+<!-- FIREBASE ENGINE SCRIPT -->
   <script type="module">
     import { 
       dbVerifyTeacher, 
@@ -1122,7 +1121,9 @@
       dbSaveExam,
       dbSaveBook,
       dbGetAttendanceSummary,
-      dbSubmitWalletTopUpRequest
+      dbSubmitWalletTopUpRequest,
+      dbGetTeacherAccessCodes,
+      dbSaveAccessCodesBatch
     } from "./firebase-engine.js";
 
     let currentTeacher = JSON.parse(localStorage.getItem("daftar_current_teacher")) || null;
@@ -1135,6 +1136,7 @@
     let attendanceLogs = [];
     let bookReservations = [];
     let walletData = { balance: 0, transactions: [] };
+    let teacherCodesCache = [];
 
     let activeSessionsList = [];
     let currentSessionIndex = -1;
@@ -1415,15 +1417,12 @@
           allExams = wsRes.exams || [];
           allBooks = wsRes.books || [];
           
-          // --- التعديل لحل مشكلة المحفظة ---
           walletData = wsRes.wallet || { balance: 0, transactions: [] };
           if (walletData.transactions && !Array.isArray(walletData.transactions)) {
-            // تحويل الـ Object القادم من فايربيز إلى Array
             walletData.transactions = Object.values(walletData.transactions);
           } else if (!walletData.transactions) {
             walletData.transactions = [];
           }
-          // ---------------------------------
 
           bookReservations = wsRes.bookReservations || [];
         }
@@ -1563,7 +1562,10 @@
       if (result && result.status === "success") {
         const txId = result.requestId;
         
-        if (!walletData.transactions) walletData.transactions = [];
+        if (!Array.isArray(walletData.transactions)) {
+           walletData.transactions = walletData.transactions ? Object.values(walletData.transactions) : [];
+        }
+        
         walletData.transactions.push({
           id: txId,
           type: "طلب شحن معلق (بانتظار تأكيد الإدارة)",
@@ -2213,7 +2215,7 @@
 
       const isNew = !originalId;
 
-if (isNew) {
+      if (isNew) {
         const studentCount = allStudents.length;
         const { rate } = calculateTierRateAndCost(studentCount + 1);
         const balance = Number(walletData.balance || 0);
@@ -2223,14 +2225,10 @@ if (isNew) {
           return;
         }
 
-        // تحديث الواجهة محلياً (قاعدة البيانات تتحدث في الكود الخلفي الآن)
         walletData.balance = Math.round((balance - rate) * 100) / 100;
-        
-        // تأمين أخير لضمان أننا نتعامل مع مصفوفة قبل عمل Push
         if (!Array.isArray(walletData.transactions)) {
            walletData.transactions = walletData.transactions ? Object.values(walletData.transactions) : [];
         }
-        
         walletData.transactions.push({
           id: "FEE-" + Math.floor(1000 + Math.random() * 9000),
           type: `خصم اشتراك طالب جديد [ID: ${rawId}]`,
@@ -2482,7 +2480,7 @@ if (isNew) {
                     <tr class="border">
                       <td class="p-2">${ex.title}</td>
                       <td class="p-2">${ex.date || '-'}</td>
-                      <td class="p-2 font-bold">${sc} / ${ex.maxScore}</td>
+                      <td class="p-2 font-bold">${sc} /${ex.maxScore}</td>
                     </tr>
                   `;
                 }).join('')}
@@ -2832,49 +2830,79 @@ if (isNew) {
       document.getElementById("lessonModal")?.classList.add("hidden");
     }
 
-    function openAccessCodeGeneratorModal() {
-      const sel = document.getElementById("codeGenLessonSelect");
-      if (!sel) return;
-      
-      const paidLessons = allLessons.filter(l => l.isPaid === true || l.isPaid === "true");
-      if (paidLessons.length === 0) {
-        showToast("لا توجد حصص مدفوعة مسجلة لتوليد أكواد لها!", "info");
-        return;
-      }
+    // --- نظام محفظة الأكواد المالية للمعلم ---
 
-      sel.innerHTML = paidLessons.map(l => `<option value="${l.lessonId}" data-price="${l.price}">${l.title} (${l.price} ج)</option>`).join('');
-      document.getElementById("codeGenLessonSelect").onchange = function() {
-        const selectedOpt = this.options[this.selectedIndex];
-        document.getElementById("codeGenPrice").value = selectedOpt.dataset.price || 0;
-      };
-      document.getElementById("codeGenLessonSelect").onchange();
-
-      document.getElementById("generatedCodesOutput").classList.add("hidden");
+    async function openAccessCodeGeneratorModal() {
       document.getElementById("accessCodeModal")?.classList.remove("hidden");
+      await loadTeacherCodesWallet();
     }
 
     function closeAccessCodeGeneratorModal() {
       document.getElementById("accessCodeModal")?.classList.add("hidden");
     }
 
-    function generateAndSaveAccessCodes() {
-      const count = Number(document.getElementById("codeGenCount").value || 5);
-      const codes = [];
-
-      for (let i = 0; i < count; i++) {
-        const code = "RQ-" + Math.random().toString(36).substring(2, 8).toUpperCase();
-        codes.push(code);
+    async function loadTeacherCodesWallet() {
+      const container = document.getElementById("teacherCodesWalletList");
+      container.innerHTML = '<p class="text-center text-slate-400 py-4"><i class="fa-solid fa-spinner fa-spin"></i> جاري جلب الأكواد...</p>';
+      
+      teacherCodesCache = await dbGetTeacherAccessCodes(currentTeacher.id);
+      
+      if (teacherCodesCache.length === 0) {
+        container.innerHTML = '<p class="text-center text-slate-400 py-4">لا توجد أكواد مولدة حتى الآن.</p>';
+        return;
       }
 
-      const out = document.getElementById("generatedCodesOutput");
-      out.classList.remove("hidden");
-      out.innerHTML = codes.map(c => `<div>🔑 ${c}</div>`).join('');
+      teacherCodesCache.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
 
-      const textToCopy = codes.join('\n');
-      navigator.clipboard.writeText(textToCopy).then(() => {
-        showToast(`✅ تم توليد (${count}) كود تفعيل ونسخها إلى الحافظة بنجاح!`, "success");
-      });
+      container.innerHTML = teacherCodesCache.map(c => `
+        <div class="bg-white p-2.5 rounded-xl border flex justify-between items-center ${c.isUsed ? 'opacity-60 grayscale' : ''}">
+          <div>
+            <div class="font-mono font-bold text-sm text-slate-800 tracking-wider">${c.code}</div>
+            <div class="text-[10px] text-slate-500">القيمة: <strong class="text-emerald-600">${c.value} ج.م</strong> | ${c.createdAt}</div>
+          </div>
+          <div class="flex items-center gap-2">
+            ${c.isUsed ? 
+              `<span class="text-[10px] bg-rose-100 text-rose-700 px-2 py-1 rounded font-bold">مستخدم 🔒<br><span class="font-mono text-[8px]">[${c.usedByStudentId}]</span></span>` : 
+              `<span class="text-[10px] bg-emerald-100 text-emerald-700 px-2 py-1 rounded font-bold">متاح ✅</span>
+               <button onclick="copyCodeToClipboard('${c.code}')" class="bg-slate-100 hover:bg-slate-200 text-slate-700 p-1.5 rounded-lg btn-press" title="نسخ الكود"><i class="fa-regular fa-copy"></i></button>`
+            }
+          </div>
+        </div>
+      `).join('');
     }
+
+    window.copyCodeToClipboard = (code) => {
+      navigator.clipboard.writeText(code).then(() => {
+        showToast(`تم نسخ الكود: ${code}`, "success");
+      });
+    };
+
+    async function generateAndSaveAccessCodes() {
+      const count = Number(document.getElementById("codeGenCount").value || 5);
+      const price = Number(document.getElementById("codeGenPrice").value || 0);
+
+      if (price <= 0) {
+        showToast("يرجى إدخال قيمة مالية صحيحة للكود!", "error");
+        return;
+      }
+
+      showLoader("جاري توليد وحفظ الأكواد في السحابة...");
+      const codes = [];
+      for (let i = 0; i < count; i++) {
+        codes.push("RQ-" + Math.random().toString(36).substring(2, 8).toUpperCase());
+      }
+
+      const result = await dbSaveAccessCodesBatch(currentTeacher.id, codes, price);
+      
+      if (result && result.status === "success") {
+        showToast(`✅ تم إضافة (${count}) كود للمحفظة بنجاح!`, "success");
+        await loadTeacherCodesWallet(); 
+      } else {
+        showToast("تعذر حفظ الأكواد.", "error");
+      }
+      hideLoader();
+    }
+    // ----------------------------------------
 
     async function saveLesson() {
       const title = document.getElementById("modalLessonTitle")?.value.trim();
@@ -3026,7 +3054,7 @@ if (isNew) {
           amountDue: activeLessonForAccess.price,
           amountPaid: activeLessonForAccess.price,
           remaining: 0,
-          notes: `شراء كود فيديو [${activeLessonForAccess.lessonId}]`,
+          notes: `فتح مباشر لفيديو [${activeLessonForAccess.lessonId}]`,
           employeeName: currentTeacher.name,
           date: Utilities_getTodayFormatted()
         };
@@ -3197,49 +3225,45 @@ if (isNew) {
     }
 
     function openGradingSheet(examId) {
-  activeGradingExam = allExams.find(e => e.examId === examId);
-  if (!activeGradingExam) return;
+      activeGradingExam = allExams.find(e => e.examId === examId);
+      if (!activeGradingExam) return;
 
-  document.getElementById("gradeSheetExamTitle").innerText = activeGradingExam.title;
-  document.getElementById("gradeSheetExamMeta").innerText = `الدرجة النهائية: ${activeGradingExam.maxScore} درجة`;
+      document.getElementById("gradeSheetExamTitle").innerText = activeGradingExam.title;
+      document.getElementById("gradeSheetExamMeta").innerText = `الدرجة النهائية: ${activeGradingExam.maxScore} درجة`;
 
-  const groupStudents = allStudents.filter(s => s.groupCode === activeGradingExam.groupCode);
-  const container = document.getElementById("gradeSheetStudentsContainer");
+      const groupStudents = allStudents.filter(s => s.groupCode === activeGradingExam.groupCode);
+      const container = document.getElementById("gradeSheetStudentsContainer");
 
-  if (container) {
-    if (groupStudents.length === 0) {
-      container.innerHTML = '<p class="text-slate-400 text-center py-4 text-xs">لا يوجد طلاب في مجموعة هذا الامتحان</p>';
-    } else {
-      container.innerHTML = groupStudents.map(s => {
-        // 1. التحقق من وجود الدرجة بشكل آمن
-        let currentScore = "";
-        if (activeGradingExam.scores && activeGradingExam.scores[s.id] !== undefined) {
-           currentScore = activeGradingExam.scores[s.id];
+      if (container) {
+        if (groupStudents.length === 0) {
+          container.innerHTML = '<p class="text-slate-400 text-center py-4 text-xs">لا يوجد طلاب في مجموعة هذا الامتحان</p>';
+        } else {
+          container.innerHTML = groupStudents.map(s => {
+            let currentScore = "";
+            if (activeGradingExam.scores && activeGradingExam.scores[s.id] !== undefined) {
+               currentScore = activeGradingExam.scores[s.id];
+            }
+            const valueAttr = currentScore !== "" ? `value="${currentScore}"` : "";
+
+            return `
+              <div class="flex justify-between items-center p-2.5 bg-white border rounded-xl">
+                <div>
+                  <div class="font-bold text-xs text-slate-800">${s.name}</div>
+                  <div class="text-[10px] text-slate-400">كود: ${s.id}</div>
+                </div>
+                <div class="flex items-center gap-1">
+                  <input type="number" id="grade_input_${s.id}" ${valueAttr} max="${activeGradingExam.maxScore}" placeholder="0" class="w-16 p-1.5 border rounded-lg text-center font-bold text-xs outline-none bg-slate-50 focus:border-purple-500 focus:bg-white transition-colors">
+                  <span class="text-[10px] text-slate-500">/ ${activeGradingExam.maxScore}</span>
+                </div>
+              </div>
+            `;
+          }).join('');
         }
-        
-        // 2. وضع القيمة فقط إذا كانت موجودة لتجنب خطأ الـ Parsing في المتصفح
-        const valueAttr = currentScore !== "" ? `value="${currentScore}"` : "";
+      }
 
-        // لاحظ استخدام علامة الباكتيك ` (حرف ذ) هنا لترجمة المتغيرات بشكل صحيح
-        return `
-          <div class="flex justify-between items-center p-2.5 bg-white border rounded-xl">
-            <div>
-              <div class="font-bold text-xs text-slate-800">${s.name}</div>
-              <div class="text-[10px] text-slate-400">كود: ${s.id}</div>
-            </div>
-            <div class="flex items-center gap-1">
-              <input type="number" id="grade_input_${s.id}" ${valueAttr} max="${activeGradingExam.maxScore}" placeholder="0" class="w-16 p-1.5 border rounded-lg text-center font-bold text-xs outline-none bg-slate-50 focus:border-purple-500 focus:bg-white transition-colors">
-              <span class="text-[10px] text-slate-500">/ ${activeGradingExam.maxScore}</span>
-            </div>
-          </div>
-        `;
-      }).join('');
+      document.getElementById("gradeSheetModal")?.classList.remove("hidden");
     }
-  }
 
-  document.getElementById("gradeSheetModal")?.classList.remove("hidden");
-}
-   
     function closeGradeSheetModal() {
       document.getElementById("gradeSheetModal")?.classList.add("hidden");
     }
@@ -3418,5 +3442,5 @@ if (isNew) {
       }
     }
   </script>
-</body>
+ </body>
 </html>
