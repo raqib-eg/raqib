@@ -145,18 +145,34 @@ export async function dbCheckAndDeductPrepaidWallet(teacherId, isNewStudent = tr
   }
 }
 
-export async function dbSaveStudent(teacherId, student, isNew = false) {
+ export async function dbSaveStudent(teacherId, student, isNew = false) {
   try {
     const cleanTId = teacherId.toString().trim();
+    const sId = student.id.toString().trim();
+    const updates = {};
+
     if (isNew) {
+      // 1. التحقق من الرصيد
       const checkRes = await dbCheckAndDeductPrepaidWallet(cleanTId, true);
       if (checkRes.status === "error") {
         return { status: "error", message: checkRes.message };
       }
+      
+      // 2. الخصم الفعلي وتوثيق العملية في Firebase (تمت الإضافة)
+      const walletSnap = await get(ref(db, `teachers/${cleanTId}/wallet`));
+      const currentWallet = walletSnap.exists() ? walletSnap.val() : { balance: 0 };
+      const rate = checkRes.requiredCost;
+      const newBalance = Number(currentWallet.balance || 0) - rate;
+      const txId = "FEE-" + Math.floor(10000 + Math.random() * 90000);
+      
+      updates[`teachers/${cleanTId}/wallet/balance`] = newBalance;
+      updates[`teachers/${cleanTId}/wallet/transactions/${txId}`] = {
+        id: txId,
+        type: `خصم اشتراك طالب جديد [ID: ${sId}]`,
+        amount: -rate,
+        date: new Date().toISOString().split("T")[0]
+      };
     }
-
-    const sId = student.id.toString().trim();
-    const updates = {};
 
     updates[`teacher_students/${cleanTId}/${sId}`] = {
       id: sId,
