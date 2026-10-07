@@ -1,10 +1,10 @@
 // =====================================================================
-// منظومة رَقِـيـبْ - محرك فايربيز فائق السرعة والموفر للباندويث (v25.0 - Atomic Architecture)
+// منظومة رَقِـيـبْ - محرك فايربيز فائق السرعة والموفر للباندويث (v24.0 - Full Upgraded Version)
 // =====================================================================
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
 import { 
-  getDatabase, ref, set, get, update, remove, child, runTransaction 
+  getDatabase, ref, set, get, update, remove, child 
 } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
 const firebaseConfig = {
@@ -28,16 +28,8 @@ const snapshotToArray = (snap) => {
   return Array.isArray(val) ? val.filter(Boolean) : Object.values(val);
 };
 
-// حساب سعر الطالب بناءً على نظام الشرائح
-export function calculateTierRate(studentCount) {
-  if (studentCount > 1000) return 1.55;
-  if (studentCount > 500) return 1.80;
-  if (studentCount > 300) return 2.00;
-  return 2.34;
-}
-
 // ==========================================
-// 1. دوال المعلم (Teacher Engine) والتحقق المسبق
+// 1. دوال المعلم (Teacher Engine) والشرائح والتحقق المسبق
 // ==========================================
 
 export async function dbVerifyTeacher(code) {
@@ -60,6 +52,7 @@ export async function dbVerifyTeacher(code) {
 export async function dbGetTeacherWorkspace(teacherId) {
   try {
     const cleanId = teacherId.toString().trim();
+    console.log("Fetching workspace safely for teacher:", cleanId);
 
     const results = await Promise.allSettled([
       get(ref(db, `teacher_students/${cleanId}`)),
@@ -85,7 +78,7 @@ export async function dbGetTeacherWorkspace(teacherId) {
       return Array.isArray(val) ? val : Object.values(val);
     };
 
-    const walletVal = getValue(results[6], { balance: 0, transactions: {} });
+    const walletVal = getValue(results[6], { balance: 0, transactions: [] });
     const bookReservationsVal = toArr(results[7]);
 
     return {
@@ -105,63 +98,82 @@ export async function dbGetTeacherWorkspace(teacherId) {
   }
 }
 
-// فحص وخصم رصيد محفظة المعلم ذرياً (Atomic Transaction)
-export async function dbAtomicDeductTeacherWallet(teacherId, amount, txDescription) {
+// حساب سعر الطالب بناءً على نظام الشرائح الجديد
+function calculateTierRate(studentCount) {
+  if (studentCount > 1000) return 1.55;
+  if (studentCount > 500) return 1.80;
+  if (studentCount > 300) return 2.00;
+  return 2.34;
+}
+
+export async function dbCheckAndDeductPrepaidWallet(teacherId, isNewStudent = true) {
   try {
-    const cleanTId = teacherId.toString().trim();
-    const walletRef = ref(db, `teachers/${cleanTId}/wallet`);
-    const txId = "FEE-" + Math.floor(10000 + Math.random() * 90000);
-    const dateStr = new Date().toISOString().split("T")[0];
+    const cleanId = teacherId.toString().trim();
+    const [studentsSnap, walletSnap] = await Promise.all([
+      get(ref(db, `teacher_students/${cleanId}`)),
+      get(ref(db, `teachers/${cleanId}/wallet`))
+    ]);
 
-    const result = await runTransaction(walletRef, (currentData) => {
-      if (!currentData) {
-        currentData = { balance: 0, transactions: {} };
-      }
-      const currentBalance = Number(currentData.balance || 0);
-      if (currentBalance < amount) {
-        return; // إلغاء المعاملة لعدم كفاية الرصيد
-      }
+    const currentStudentsCount = studentsSnap.exists() ? Object.keys(studentsSnap.val()).length : 0;
+    const projectedCount = isNewStudent ? currentStudentsCount + 1 : currentStudentsCount;
+    const rate = calculateTierRate(projectedCount);
+    
+    const requiredCostPerMonth = rate; 
 
-      currentData.balance = Math.round((currentBalance - amount) * 100) / 100;
-      if (!currentData.transactions) currentData.transactions = {};
+    const wallet = walletSnap.exists() ? walletSnap.val() : { balance: 0, graceDaysLeft: 5, transactions: [] };
+    const balance = Number(wallet.balance || 0);
+
+    if (balance < requiredCostPerMonth) {
+      let graceDays = wallet.graceDaysLeft !== undefined ? wallet.graceDaysLeft : 5;
       
-      currentData.transactions[txId] = {
-        id: txId,
-        type: txDescription,
-        amount: -amount,
-        date: dateStr
-      };
-      return currentData;
-    });
-
-    if (!result.committed) {
-      return { status: "error", message: "رصيد المحفظة لا يكفي لتغطية التكلفة المطلوبة." };
+      if (graceDays > 0 && isNewStudent) {
+        return { 
+          status: "warning", 
+          message: `⚠️ تنبيه: رصيد المحفظة لا يكفي لتغطية تكلفة الطالب بالشريحة الجديدة (${rate} ج.م)، ولكنك في فترة السماح (${graceDays} أيام متبقية). يرجى الشحن قريباً.` 
+        };
+      } else if (graceDays <= 0) {
+        return { 
+          status: "error", 
+          message: `❌ انتهت فترة السماح (5 أيام) ونفد رصيد المحفظة! يرجى شحن المحفظة فوراً لإضافة طلاب جدد أو استمرار التفعيل.` 
+        };
+      }
     }
-    return { status: "success", newBalance: result.snapshot.val().balance, txId };
+
+    return { status: "success", requiredCost: requiredCostPerMonth };
   } catch (e) {
     return { status: "error", message: e.toString() };
   }
 }
 
-export async function dbSaveStudent(teacherId, student, isNew = false) {
+ export async function dbSaveStudent(teacherId, student, isNew = false) {
   try {
     const cleanTId = teacherId.toString().trim();
     const sId = student.id.toString().trim();
+    const updates = {};
 
     if (isNew) {
-      // حساب تكلفة إضافة الطالب الجديد حسب الشريحة
-      const studentsSnap = await get(ref(db, `teacher_students/${cleanTId}`));
-      const currentCount = studentsSnap.exists() ? Object.keys(studentsSnap.val()).length : 0;
-      const rate = calculateTierRate(currentCount + 1);
-
-      // خصم التكلفة ذرياً من محفظة المعلم
-      const deductRes = await dbAtomicDeductTeacherWallet(cleanTId, rate, `خصم اشتراك طالب جديد [ID: ${sId}]`);
-      if (deductRes.status === "error") {
-        return { status: "error", message: deductRes.message };
+      // 1. التحقق من الرصيد
+      const checkRes = await dbCheckAndDeductPrepaidWallet(cleanTId, true);
+      if (checkRes.status === "error") {
+        return { status: "error", message: checkRes.message };
       }
+      
+      // 2. الخصم الفعلي وتوثيق العملية في Firebase (تمت الإضافة)
+      const walletSnap = await get(ref(db, `teachers/${cleanTId}/wallet`));
+      const currentWallet = walletSnap.exists() ? walletSnap.val() : { balance: 0 };
+      const rate = checkRes.requiredCost;
+      const newBalance = Number(currentWallet.balance || 0) - rate;
+      const txId = "FEE-" + Math.floor(10000 + Math.random() * 90000);
+      
+      updates[`teachers/${cleanTId}/wallet/balance`] = newBalance;
+      updates[`teachers/${cleanTId}/wallet/transactions/${txId}`] = {
+        id: txId,
+        type: `خصم اشتراك طالب جديد [ID: ${sId}]`,
+        amount: -rate,
+        date: new Date().toISOString().split("T")[0]
+      };
     }
 
-    const updates = {};
     updates[`teacher_students/${cleanTId}/${sId}`] = {
       id: sId,
       name: student.name,
@@ -171,8 +183,7 @@ export async function dbSaveStudent(teacherId, student, isNew = false) {
       groupCode: student.groupCode || "",
       discountType: student.discountType || "لا يوجد",
       discountValue: Number(student.discountValue || 0),
-      notes: student.notes || "",
-      walletBalance: Number(student.walletBalance || 0)
+      notes: student.notes || ""
     };
 
     updates[`student_auth_index/${sId}`] = {
@@ -302,17 +313,15 @@ export async function dbUnlockLesson(teacherId, lessonId, studentId) {
   try {
     const cleanTId = teacherId.toString().trim();
     const lessonRef = ref(db, `content_vault/${cleanTId}/lessons/${lessonId}`);
-    
-    const result = await runTransaction(lessonRef, (lesson) => {
-      if (!lesson) return;
-      if (!lesson.unlockedStudents) lesson.unlockedStudents = [];
-      if (!lesson.unlockedStudents.includes(studentId.toString())) {
-        lesson.unlockedStudents.push(studentId.toString());
-      }
-      return lesson;
-    });
+    const snap = await get(lessonRef);
+    if (!snap.exists()) return { status: "error", message: "الحصة غير موجودة" };
 
-    if (!result.committed) return { status: "error", message: "الحصة غير موجودة" };
+    const lesson = snap.val();
+    const unlocked = lesson.unlockedStudents || [];
+    if (!unlocked.includes(studentId.toString())) {
+      unlocked.push(studentId.toString());
+      await update(lessonRef, { unlockedStudents: unlocked });
+    }
     return { status: "success" };
   } catch (e) {
     return { status: "error", message: e.toString() };
@@ -332,12 +341,7 @@ export async function dbSaveExam(teacherId, exam) {
 export async function dbSaveBook(teacherId, book) {
   try {
     const cleanTId = teacherId.toString().trim();
-    await set(ref(db, `content_vault/${cleanTId}/books/${book.bookId}`), {
-      ...book,
-      stock: Number(book.stock || 0),
-      reservedCount: Number(book.reservedCount || 0),
-      depositAmount: Number(book.depositAmount || 0)
-    });
+    await set(ref(db, `content_vault/${cleanTId}/books/${book.bookId}`), book);
     return { status: "success" };
   } catch (e) {
     return { status: "error", message: e.toString() };
@@ -345,7 +349,7 @@ export async function dbSaveBook(teacherId, book) {
 }
 
 // ==========================================
-// 2. دوال بوابة الطالب والعمليات الذرية
+// 2. دوال بوابة الطالب
 // ==========================================
 
 export async function dbStudentLogin(studentId) {
@@ -363,7 +367,7 @@ export async function dbStudentLogin(studentId) {
 
     return {
       status: "success",
-      student: profSnap.exists() ? profSnap.val() : { id: sId, name: "طالب", walletBalance: 0 },
+      student: profSnap.exists() ? profSnap.val() : { id: sId, name: "طالب" },
       teacherId: tId,
       teacherName: teacherSnap.exists() ? teacherSnap.val().name : "الأستاذ",
       isActive: act === true
@@ -379,288 +383,13 @@ export async function dbGetStudentLessons(teacherId) {
     const snap = await get(ref(db, `content_vault/${cleanId}/lessons`));
     return snapshotToArray(snap);
   } catch (e) {
+    console.error("Error in dbGetStudentLessons:", e);
     return [];
-  }
-}
-
-export async function dbGetStudentBooks(teacherId) {
-  try {
-    const cleanId = teacherId.toString().trim();
-    const snap = await get(ref(db, `content_vault/${cleanId}/books`));
-    return snapshotToArray(snap);
-  } catch (e) {
-    return [];
-  }
-}
-
-// شحن كود الرصيد ذرياً للطالب
-export async function dbRedeemAccessCode(studentId, teacherId, codeText) {
-  try {
-    const cleanTId = teacherId.toString().trim();
-    const cleanCode = codeText.toString().trim().toUpperCase();
-    const cleanSId = studentId.toString().trim();
-
-    const codeRef = ref(db, `access_codes/${cleanTId}/${cleanCode}`);
-    let codeValue = 0;
-
-    const codeTxResult = await runTransaction(codeRef, (codeData) => {
-      if (!codeData) return; // الكود غير مسجل
-      if (codeData.isUsed) return; // تم استخدامه مسبقاً
-
-      codeData.isUsed = true;
-      codeData.usedByStudentId = cleanSId;
-      codeData.usedAt = new Date().toISOString();
-      codeValue = Number(codeData.value || 0);
-      return codeData;
-    });
-
-    if (!codeTxResult.committed) {
-      return { status: "error", message: "كود الشحن غير صحيح أو تم استخدامه مسبقاً!" };
-    }
-
-    // إضافة الرصيد لمحفظة الطالب ذرياً
-    const stdRef = ref(db, `teacher_students/${cleanTId}/${cleanSId}`);
-    const stdTxResult = await runTransaction(stdRef, (stdData) => {
-      if (!stdData) return;
-      stdData.walletBalance = Number(stdData.walletBalance || 0) + codeValue;
-      return stdData;
-    });
-
-    return { 
-      status: "success", 
-      addedValue: codeValue, 
-      newBalance: stdTxResult.snapshot.val().walletBalance 
-    };
-  } catch (e) {
-    return { status: "error", message: e.toString() };
-  }
-}
-
-// شراء حصة مسجلة من رصيد محفظة الطالب ذرياً
-export async function dbStudentBuyLesson(studentId, teacherId, lessonId, price) {
-  try {
-    const cleanTId = teacherId.toString().trim();
-    const cleanSId = studentId.toString().trim();
-    const cleanLId = lessonId.toString().trim();
-
-    // 1. خصم ثمن الحصة من رصيد الطالب ذرياً
-    const stdRef = ref(db, `teacher_students/${cleanTId}/${cleanSId}`);
-    const stdTx = await runTransaction(stdRef, (stdData) => {
-      if (!stdData) return;
-      const currentBalance = Number(stdData.walletBalance || 0);
-      if (currentBalance < price) {
-        return; // الرصيد لا يكفي
-      }
-      stdData.walletBalance = Math.round((currentBalance - price) * 100) / 100;
-      return stdData;
-    });
-
-    if (!stdTx.committed) {
-      return { status: "error", message: "رصيد محفظتك لا يكفي لشراء هذه الحصة! يرجى شحن الرصيد أولاً." };
-    }
-
-    // 2. فك قفل الحصة في قائمة الحصص ذرياً
-    const lessonRef = ref(db, `content_vault/${cleanTId}/lessons/${cleanLId}`);
-    await runTransaction(lessonRef, (lesson) => {
-      if (!lesson) return;
-      if (!lesson.unlockedStudents) lesson.unlockedStudents = [];
-      if (!lesson.unlockedStudents.includes(cleanSId)) {
-        lesson.unlockedStudents.push(cleanSId);
-      }
-      return lesson;
-    });
-
-    return { status: "success", newBalance: stdTx.snapshot.val().walletBalance };
-  } catch (e) {
-    return { status: "error", message: e.toString() };
-  }
-}
-
-// =====================================================================
-// 3. نظام المخزن، حجز المذكرات، وخصم الديبوزت الذري (Inventory & Deposit)
-// =====================================================================
-
-export async function dbReserveBookWithDepositAtomic(teacherId, studentId, studentName, bookId, qty = 1) {
-  try {
-    const cleanTId = teacherId.toString().trim();
-    const cleanSId = studentId.toString().trim();
-    const cleanBId = bookId.toString().trim();
-
-    // 1. التحقق من المذكرة والمخزون
-    const bookSnap = await get(ref(db, `content_vault/${cleanTId}/books/${cleanBId}`));
-    if (!bookSnap.exists()) {
-      return { status: "error", message: "المذكرة غير موجودة في المخزن." };
-    }
-    const book = bookSnap.val();
-    const availableStock = Number(book.stock || 0);
-    if (availableStock < qty) {
-      return { status: "error", message: `المخزون المتوفر لا يكفي! المتبقي بالمخزن: ${availableStock} نسخة فقط.` };
-    }
-
-    const fullPrice = Number(book.price || 0) * qty;
-    // العربون: القيمة المحددة بالمذكرة أو 25% من الإجمالي افتراضياً
-    const depositRequired = Number(book.depositAmount || Math.round(fullPrice * 0.25));
-
-    // 2. خصم العربون ذرياً من رصيد الطالب
-    const studentRef = ref(db, `teacher_students/${cleanTId}/${cleanSId}`);
-    const studentTx = await runTransaction(studentRef, (stdData) => {
-      if (!stdData) return;
-      const currentBalance = Number(stdData.walletBalance || 0);
-      if (currentBalance < depositRequired) {
-        return; // الرصيد لا يكفي لدفع العربون
-      }
-      stdData.walletBalance = Math.round((currentBalance - depositRequired) * 100) / 100;
-      return stdData;
-    });
-
-    if (!studentTx.committed) {
-      return { 
-        status: "error", 
-        message: `رصيد محفظتك لا يكفي لسداد عربون الحجز المطلوب (${depositRequired} ج.م)! يرجى شحن الرصيد أولاً.` 
-      };
-    }
-
-    // 3. تقليل المخزون وزيادة الكمية المحجوزة ذرياً
-    const bookRef = ref(db, `content_vault/${cleanTId}/books/${cleanBId}`);
-    await runTransaction(bookRef, (bData) => {
-      if (!bData) return;
-      bData.stock = Math.max(0, Number(bData.stock || 0) - qty);
-      bData.reservedCount = Number(bData.reservedCount || 0) + qty;
-      return bData;
-    });
-
-    // 4. إنشاء سجل الحجز وتوثيق سند العربون المالي
-    const resId = "RES-" + Math.floor(10000 + Math.random() * 90000);
-    const dateStr = new Date().toISOString().split("T")[0];
-
-    const reservationData = {
-      id: resId,
-      bookId: cleanBId,
-      bookTitle: book.title,
-      studentId: cleanSId,
-      studentName: studentName,
-      qty: qty,
-      fullPrice: fullPrice,
-      depositPaid: depositRequired,
-      remainingAmount: Math.max(0, fullPrice - depositRequired),
-      status: "معلق (عربون مدفوع)",
-      date: dateStr,
-      timestamp: Date.now()
-    };
-
-    const updates = {};
-    updates[`book_reservations/${cleanTId}/${resId}`] = reservationData;
-    updates[`payments_ledger/${cleanTId}/DEP-${resId}`] = {
-      receiptId: `DEP-${resId}`,
-      studentId: cleanSId,
-      studentName: studentName,
-      teacherId: cleanTId,
-      paymentType: `عربون حجز مذكرة: ${book.title}`,
-      amountDue: fullPrice,
-      amountPaid: depositRequired,
-      remaining: Math.max(0, fullPrice - depositRequired),
-      notes: `حجز رقم [${resId}] - مخصوم من المحفظة`,
-      date: dateStr
-    };
-
-    await update(ref(db), updates);
-
-    return { 
-      status: "success", 
-      reservationId: resId, 
-      depositDeducted: depositRequired,
-      remaining: reservationData.remainingAmount 
-    };
-  } catch (e) {
-    return { status: "error", message: e.toString() };
-  }
-}
-
-// تسليم المذكرة للطلب وتحصيل المتبقي
-export async function dbFulfillBookReservationAtomic(teacherId, reservationId, collectRemaining = true) {
-  try {
-    const cleanTId = teacherId.toString().trim();
-    const resRef = ref(db, `book_reservations/${cleanTId}/${reservationId}`);
-    const resSnap = await get(resRef);
-    if (!resSnap.exists()) return { status: "error", message: "طلب الحجز غير موجود." };
-
-    const reservation = resSnap.val();
-    if (reservation.status === "تم التسليم ✓") {
-      return { status: "error", message: "تم تسليم هذا الحجز مسبقاً." };
-    }
-
-    const updates = {};
-    updates[`book_reservations/${cleanTId}/${reservationId}/status`] = "تم التسليم ✓";
-    updates[`book_reservations/${cleanTId}/${reservationId}/deliveredAt`] = new Date().toISOString();
-
-    if (collectRemaining && reservation.remainingAmount > 0) {
-      const recId = "BAL-" + Math.floor(10000 + Math.random() * 90000);
-      updates[`payments_ledger/${cleanTId}/${recId}`] = {
-        receiptId: recId,
-        studentId: reservation.studentId,
-        studentName: reservation.studentName,
-        teacherId: cleanTId,
-        paymentType: `المتبقي من تسليم مذكرة: ${reservation.bookTitle}`,
-        amountDue: reservation.remainingAmount,
-        amountPaid: reservation.remainingAmount,
-        remaining: 0,
-        notes: `استكمال سداد الحجز [${reservationId}] عند الاستلام`,
-        date: new Date().toISOString().split("T")[0]
-      };
-      updates[`book_reservations/${cleanTId}/${reservationId}/remainingAmount`] = 0;
-    }
-
-    await update(ref(db), updates);
-    return { status: "success" };
-  } catch (e) {
-    return { status: "error", message: e.toString() };
-  }
-}
-
-// إلغاء الحجز ورد العربون للمحفظة والنسخة للمخزن ذرياً
-export async function dbCancelBookReservationAtomic(teacherId, reservationId) {
-  try {
-    const cleanTId = teacherId.toString().trim();
-    const resRef = ref(db, `book_reservations/${cleanTId}/${reservationId}`);
-    const resSnap = await get(resRef);
-    if (!resSnap.exists()) return { status: "error", message: "الحجز غير موجود." };
-
-    const resData = resSnap.val();
-    if (resData.status === "تم التسليم ✓" || resData.status === "ملغي ومسترد") {
-      return { status: "error", message: "لا يمكن إلغاء الحجز في حالته الحالية." };
-    }
-
-    // 1. إعادة العربون لمحفظة الطالب ذرياً
-    const stdRef = ref(db, `teacher_students/${cleanTId}/${resData.studentId}`);
-    await runTransaction(stdRef, (std) => {
-      if (!std) return;
-      std.walletBalance = Number(std.walletBalance || 0) + Number(resData.depositPaid || 0);
-      return std;
-    });
-
-    // 2. إعادة النسخة إلى المخزون ذرياً
-    const bookRef = ref(db, `content_vault/${cleanTId}/books/${resData.bookId}`);
-    await runTransaction(bookRef, (b) => {
-      if (!b) return;
-      b.stock = Number(b.stock || 0) + Number(resData.qty || 1);
-      b.reservedCount = Math.max(0, Number(b.reservedCount || 0) - Number(resData.qty || 1));
-      return b;
-    });
-
-    // 3. تحديث حالة الحجز
-    await update(resRef, {
-      status: "ملغي ومسترد",
-      cancelledAt: new Date().toISOString()
-    });
-
-    return { status: "success", refundedAmount: resData.depositPaid };
-  } catch (e) {
-    return { status: "error", message: e.toString() };
   }
 }
 
 // ==========================================
-// 4. دوال لوحة الإدارة (Super Admin)
+// 3. دوال لوحة الإدارة والتحكم الشامل (Super Admin)
 // ==========================================
 
 export async function dbGetAdminOverview() {
@@ -675,11 +404,7 @@ export async function dbGetAdminOverview() {
     if (teachersSnap.exists()) {
       const rawT = teachersSnap.val();
       Object.keys(rawT).forEach(tId => {
-        teachers[tId] = { 
-          id: tId, 
-          ...rawT[tId].profile, 
-          walletBalance: rawT[tId].wallet ? rawT[tId].wallet.balance : 0 
-        };
+        teachers[tId] = { id: tId, ...rawT[tId].profile };
       });
     }
 
@@ -724,10 +449,6 @@ export async function dbApproveTeacherDirect(teacherId, teacherData) {
       status: "Approved",
       createdAt: new Date().toISOString().split("T")[0]
     };
-    updates[`teachers/${cleanTId}/wallet`] = {
-      balance: 0,
-      transactions: {}
-    };
     await update(ref(db), updates);
     return { status: "success" };
   } catch (e) {
@@ -762,6 +483,7 @@ export async function dbTransferStudent(studentId, fromTeacherId, toTeacherId) {
 
     const studentData = sSnap.val();
     const updates = {};
+    
     updates[`teacher_students/${cleanFrom}/${sId}`] = null;
     updates[`teacher_students/${cleanTo}/${sId}`] = studentData;
     updates[`student_auth_index/${sId}/tId`] = cleanTo;
@@ -815,6 +537,28 @@ export async function dbSubmitTeacherApplication(requestData) {
   }
 }
 
+export async function dbGetStudentFinancialLedger(teacherId, studentId) {
+  try {
+    const cleanTId = teacherId.toString().trim();
+    const snap = await get(ref(db, `payments_ledger/${cleanTId}`));
+    if (!snap.exists()) return { totalPaid: 0, totalDue: 0, balance: 0, receipts: [] };
+
+    const raw = snap.val();
+    const receipts = Object.values(raw).filter(p => p.studentId.toString() === studentId.toString());
+
+    const totalPaid = receipts.reduce((sum, r) => sum + Number(r.amountPaid || 0), 0);
+    const totalRemaining = receipts.reduce((sum, r) => sum + Number(r.remaining || 0), 0);
+
+    return {
+      totalPaid,
+      totalRemaining,
+      receipts: receipts.reverse()
+    };
+  } catch (e) {
+    return { totalPaid: 0, totalRemaining: 0, receipts: [] };
+  }
+}
+
 export async function dbGetAttendanceSummary(teacherId, groupCode = null) {
   try {
     const cleanTId = teacherId.toString().trim();
@@ -857,7 +601,7 @@ export async function dbGetAttendanceSummary(teacherId, groupCode = null) {
 }
 
 // ==========================================
-// 5. دوال بوابة ولي الأمر (Parent Portal)
+// 8. دوال بوابة ولي الأمر (Parent Portal)
 // ==========================================
 
 export async function dbParentLogin(studentId, parentPhone) {
@@ -880,7 +624,7 @@ export async function dbParentLogin(studentId, parentPhone) {
       return { status: "success", teacherId: tId };
     }
 
-    return { status: "error", message: "رقم هاتف ولي الأمر غير مطابق للمسجل في النظام" };
+    return { status: "error", message: "رقم هاتف ولي الأمر غير مطابق المسجل في النظام" };
   } catch (e) {
     return { status: "error", message: e.toString() };
   }
@@ -958,9 +702,46 @@ export async function dbGetParentWorkspace(teacherId, studentId) {
 }
 
 // ==========================================
-// 6. شحن المحفظة وتوليد الأكواد (Wallet & Top-up)
+// 4. ميزات إضافية للمخزن، شحن المحفظة، وأكواد الفيديوهات (Added Features v24.0)
 // ==========================================
 
+// أ. إدارة حجوزات ومخزن المذكرات سحابياً
+export async function dbSaveBookReservation(teacherId, reservation) {
+  try {
+    const cleanTId = teacherId.toString().trim();
+    const resId = reservation.id || "RES-" + Math.floor(1000 + Math.random() * 9000);
+    await set(ref(db, `book_reservations/${cleanTId}/${resId}`), {
+      ...reservation,
+      id: resId,
+      timestamp: Date.now()
+    });
+    return { status: "success", reservationId: resId };
+  } catch (e) {
+    return { status: "error", message: e.toString() };
+  }
+}
+
+export async function dbGetBookReservations(teacherId) {
+  try {
+    const cleanTId = teacherId.toString().trim();
+    const snap = await get(ref(db, `book_reservations/${cleanTId}`));
+    return snapshotToArray(snap);
+  } catch (e) {
+    return [];
+  }
+}
+
+export async function dbUpdateBookReservationStatus(teacherId, reservationId, newStatus) {
+  try {
+    const cleanTId = teacherId.toString().trim();
+    await update(ref(db, `book_reservations/${cleanTId}/${reservationId}`), { status: newStatus });
+    return { status: "success" };
+  } catch (e) {
+    return { status: "error", message: e.toString() };
+  }
+}
+
+// ب. نظام شحن المحفظة المعلق وتأكيد الأدمن
 export async function dbSubmitWalletTopUpRequest(teacherId, amount, teacherName) {
   try {
     const cleanTId = teacherId.toString().trim();
@@ -1006,20 +787,13 @@ export async function dbAdminResolveWalletTopUp(requestId, teacherId, amount, ap
     const updates = {};
     
     if (approve) {
-      const walletRef = ref(db, `teachers/${cleanTId}/wallet`);
-      await runTransaction(walletRef, (wallet) => {
-        if (!wallet) wallet = { balance: 0, transactions: {} };
-        wallet.balance = Number(wallet.balance || 0) + Number(amount);
-        if (!wallet.transactions) wallet.transactions = {};
-        wallet.transactions[requestId] = {
-          id: requestId,
-          type: "شحن رصيد معتمد من الإدارة ✓",
-          amount: Number(amount),
-          date: new Date().toISOString().split("T")[0]
-        };
-        return wallet;
-      });
+      const walletSnap = await get(ref(db, `teachers/${cleanTId}/wallet`));
+      const currentWallet = walletSnap.exists() ? walletSnap.val() : { balance: 0, transactions: [] };
+      const newBalance = Number(currentWallet.balance || 0) + Number(amount);
+
+      updates[`teachers/${cleanTId}/wallet/balance`] = newBalance;
       updates[`wallet_topup_requests/${requestId}/status`] = "Approved";
+      updates[`teachers/${cleanTId}/wallet/transactions/${requestId}/type`] = "شحن رصيد معتمد من الإدارة ✓";
     } else {
       updates[`wallet_topup_requests/${requestId}/status`] = "Rejected";
       updates[`teachers/${cleanTId}/wallet/transactions/${requestId}/type`] = "طلب شحن مرفوض ✕";
@@ -1032,6 +806,7 @@ export async function dbAdminResolveWalletTopUp(requestId, teacherId, amount, ap
   }
 }
 
+// ج. نظام محفظة الطالب والأكواد المالية
 export async function dbSaveAccessCodesBatch(teacherId, codesList, value) {
   try {
     const cleanTId = teacherId.toString().trim();
@@ -1040,7 +815,7 @@ export async function dbSaveAccessCodesBatch(teacherId, codesList, value) {
     codesList.forEach(code => {
       updates[`access_codes/${cleanTId}/${code}`] = {
         code,
-        value: Number(value),
+        value: Number(value), // القيمة المالية بدلاً من ربطها بحصة
         isUsed: false,
         usedByStudentId: null,
         createdAt: new Date().toISOString().split("T")[0]
@@ -1061,5 +836,110 @@ export async function dbGetTeacherAccessCodes(teacherId) {
     return snapshotToArray(snap);
   } catch (e) {
     return [];
+  }
+}
+
+export async function dbRedeemAccessCode(studentId, teacherId, codeText) {
+  try {
+    const cleanTId = teacherId.toString().trim();
+    const cleanCode = codeText.toString().trim().toUpperCase();
+    
+    const codeRef = ref(db, `access_codes/${cleanTId}/${cleanCode}`);
+    const codeSnap = await get(codeRef);
+
+    if (!codeSnap.exists()) {
+      return { status: "error", message: "❌ كود الشحن غير صحيح!" };
+    }
+
+    const codeData = codeSnap.val();
+    if (codeData.isUsed) {
+      return { status: "error", message: "⚠️ هذا الكود تم شحنه من قبل!" };
+    }
+
+    // جلب رصيد الطالب الحالي
+    const stdRef = ref(db, `teacher_students/${cleanTId}/${studentId}`);
+    const stdSnap = await get(stdRef);
+    if(!stdSnap.exists()) return { status: "error", message: "بيانات الطالب غير موجودة" };
+    
+    let currentBalance = Number(stdSnap.val().walletBalance || 0);
+    let newBalance = currentBalance + Number(codeData.value);
+
+    const updates = {};
+    // إغلاق الكود
+    updates[`access_codes/${cleanTId}/${cleanCode}/isUsed`] = true;
+    updates[`access_codes/${cleanTId}/${cleanCode}/usedByStudentId`] = studentId.toString();
+    // شحن رصيد الطالب
+    updates[`teacher_students/${cleanTId}/${studentId}/walletBalance`] = newBalance;
+
+    await update(ref(db), updates);
+    return { status: "success", addedValue: codeData.value, newBalance: newBalance };
+  } catch (e) {
+    return { status: "error", message: e.toString() };
+  }
+}
+
+export async function dbStudentBuyLesson(studentId, teacherId, lessonId, price) {
+  try {
+    const cleanTId = teacherId.toString().trim();
+    
+    // التحقق من رصيد الطالب
+    const stdRef = ref(db, `teacher_students/${cleanTId}/${studentId}`);
+    const stdSnap = await get(stdRef);
+    let currentBalance = Number(stdSnap.val().walletBalance || 0);
+
+    if (currentBalance < price) {
+      return { status: "error", message: "رصيد محفظتك لا يكفي لشراء هذه الحصة! يرجى شحن الرصيد أولاً." };
+    }
+
+    const lessonRef = ref(db, `content_vault/${cleanTId}/lessons/${lessonId}`);
+    const lessonSnap = await get(lessonRef);
+    const lesson = lessonSnap.val();
+    const unlocked = lesson.unlockedStudents || [];
+
+    if (unlocked.includes(studentId.toString())) {
+      return { status: "error", message: "لديك صلاحية لهذه الحصة بالفعل!" };
+    }
+
+    unlocked.push(studentId.toString());
+    const newBalance = currentBalance - price;
+
+    const updates = {};
+    updates[`teacher_students/${cleanTId}/${studentId}/walletBalance`] = newBalance;
+    updates[`content_vault/${cleanTId}/lessons/${lessonId}/unlockedStudents`] = unlocked;
+
+    await update(ref(db), updates);
+    return { status: "success", newBalance: newBalance };
+  } catch (e) {
+    return { status: "error", message: e.toString() };
+  }
+}
+
+export async function dbDeleteLesson(teacherId, lessonId) {
+  try {
+    const cleanTId = teacherId.toString().trim();
+    await remove(ref(db, `content_vault/${cleanTId}/lessons/${lessonId}`));
+    return { status: "success" };
+  } catch (e) {
+    return { status: "error", message: e.toString() };
+  }
+}
+
+export async function dbDeleteExam(teacherId, examId) {
+  try {
+    const cleanTId = teacherId.toString().trim();
+    await remove(ref(db, `content_vault/${cleanTId}/exams/${examId}`));
+    return { status: "success" };
+  } catch (e) {
+    return { status: "error", message: e.toString() };
+  }
+}
+
+export async function dbDeleteBook(teacherId, bookId) {
+  try {
+    const cleanTId = teacherId.toString().trim();
+    await remove(ref(db, `content_vault/${cleanTId}/books/${bookId}`));
+    return { status: "success" };
+  } catch (e) {
+    return { status: "error", message: e.toString() };
   }
 }
