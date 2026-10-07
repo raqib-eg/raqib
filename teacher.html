@@ -135,8 +135,8 @@
     <!-- DESKTOP SIDEBAR -->
     <aside class="hidden md:flex flex-col w-64 bg-white border-l border-slate-200 min-h-screen p-4 sticky top-0 shadow-sm z-30">
       <div class="flex items-center gap-3 mb-6 px-2">
-        <div class="bg-blue-600 text-white w-10 h-10 rounded-xl flex items-center justify-center text-xl font-bold shadow-md shadow-blue-500/20">
-          <i class="fa-solid fa-book-bookmark"></i>
+        <div id="sidebarTeacherLogoBox" class="bg-blue-600 text-white w-10 h-10 rounded-xl flex items-center justify-center text-xl font-bold shadow-md shadow-blue-500/20 overflow-hidden">
+          <i class="fa-solid fa-book-bookmark" id="sidebarTeacherIcon"></i>
         </div>
         <div>
           <h1 class="font-black text-lg text-slate-800 leading-none" id="sidebarTeacherName">الأستاذ</h1>
@@ -147,6 +147,9 @@
       <nav class="space-y-1.5 flex-1">
         <button onclick="switchTab('dashboard')" class="desktop-nav-btn w-full p-3 rounded-xl flex items-center gap-3 text-xs font-bold transition text-blue-600 bg-blue-50" data-tab="dashboard">
           <i class="fa-solid fa-chart-pie text-base w-5 text-center"></i> <span>الرئيسية</span>
+        </button>
+        <button onclick="switchTab('customization')" class="desktop-nav-btn w-full p-3 rounded-xl flex items-center gap-3 text-xs font-bold transition text-slate-500 hover:bg-slate-50" data-tab="customization">
+          <i class="fa-solid fa-palette text-base w-5 text-center"></i> <span>إدارة واجهة الطالب</span>
         </button>
         <button onclick="switchTab('wallet')" class="desktop-nav-btn w-full p-3 rounded-xl flex items-center gap-3 text-xs font-bold transition text-slate-500 hover:bg-slate-50" data-tab="wallet">
           <i class="fa-solid fa-wallet text-base w-5 text-center"></i> <span>المحفظة والاشتراكات</span>
@@ -164,17 +167,20 @@
           <i class="fa-solid fa-receipt text-base w-5 text-center"></i> <span>الماليات</span>
         </button>
         <button onclick="switchTab('lessons')" class="desktop-nav-btn w-full p-3 rounded-xl flex items-center gap-3 text-xs font-bold transition text-slate-500 hover:bg-slate-50" data-tab="lessons">
-          <i class="fa-solid fa-video text-base w-5 text-center"></i> <span>الحصص المسجلة</span>
+          <i class="fa-solid fa-video text-base w-5 text-center"></i> <span>الحصص والأكواد</span>
         </button>
         <button onclick="switchTab('exams')" class="desktop-nav-btn w-full p-3 rounded-xl flex items-center gap-3 text-xs font-bold transition text-slate-500 hover:bg-slate-50" data-tab="exams">
           <i class="fa-solid fa-file-pen text-base w-5 text-center"></i> <span>الامتحانات والدرجات</span>
         </button>
         <button onclick="switchTab('books')" class="desktop-nav-btn w-full p-3 rounded-xl flex items-center gap-3 text-xs font-bold transition text-slate-500 hover:bg-slate-50" data-tab="books">
-          <i class="fa-solid fa-book-open text-base w-5 text-center"></i> <span>المذكرات والمخزن</span>
+          <i class="fa-solid fa-book-open text-base w-5 text-center"></i> <span>المخزن والمذكرات</span>
         </button>
       </nav>
 
-      <div class="pt-4 border-t border-slate-100 flex items-center gap-2">
+      <div class="pt-4 border-t border-slate-100 flex flex-col gap-2">
+        <button onclick="downloadAppInstaller()" class="w-full p-2.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 rounded-xl text-xs font-bold transition flex items-center justify-center gap-2 btn-press">
+          <i class="fa-solid fa-download"></i> تحميل البرنامج
+        </button>
         <button onclick="logoutTeacher()" class="w-full p-2.5 bg-rose-50 hover:bg-rose-100 text-rose-600 rounded-xl text-xs font-bold transition flex items-center justify-center gap-2">
           <i class="fa-solid fa-right-from-bracket"></i> خروج
         </button>
@@ -187,7 +193,7 @@
       <!-- MOBILE HEADER -->
       <header class="md:hidden bg-blue-600 text-white p-4 sticky top-0 shadow-md z-30 flex justify-between items-center">
         <div class="flex items-center gap-2.5">
-          <div class="bg-white text-blue-600 w-8 h-8 rounded-lg flex items-center justify-center text-lg font-bold">
+          <div id="mobileHeaderLogoBox" class="bg-white text-blue-600 w-8 h-8 rounded-lg flex items-center justify-center text-lg font-bold overflow-hidden">
             <i class="fa-solid fa-chalkboard-user"></i>
           </div>
           <div>
@@ -195,9 +201,14 @@
             <span class="text-[10px] text-blue-200" id="mobileHeaderTeacherSubject">دفتر الأستاذ</span>
           </div>
         </div>
-        <button onclick="logoutTeacher()" class="text-xs bg-blue-700 hover:bg-blue-800 px-3 py-1.5 rounded-lg font-medium transition btn-press">
-          <i class="fa-solid fa-right-from-bracket"></i>
-        </button>
+        <div class="flex items-center gap-2">
+          <button onclick="downloadAppInstaller()" class="text-xs bg-blue-700 hover:bg-blue-800 px-3 py-1.5 rounded-lg font-medium transition btn-press">
+            <i class="fa-solid fa-download"></i>
+          </button>
+          <button onclick="logoutTeacher()" class="text-xs bg-blue-700 hover:bg-blue-800 px-3 py-1.5 rounded-lg font-medium transition btn-press">
+            <i class="fa-solid fa-right-from-bracket"></i>
+          </button>
+        </div>
       </header>
 
       <main class="p-4 md:p-8 max-w-6xl w-full mx-auto space-y-6">
@@ -253,6 +264,50 @@
             <button onclick="switchTab('attendance')" class="bg-white text-blue-600 font-bold px-6 py-3 rounded-xl text-xs md:text-sm shadow-lg hover:bg-blue-50 transition btn-press whitespace-nowrap">
               بدء جلسة الحضور <i class="fa-solid fa-arrow-left mr-1"></i>
             </button>
+          </div>
+        </section>
+
+        <!-- 1. CUSTOMIZATION TAB (إدارة شكل واجهة الطالب) -->
+        <section id="tab-customization" class="tab-content space-y-6 max-w-2xl mx-auto">
+          <div class="bg-white p-6 md:p-8 rounded-3xl shadow-sm border border-slate-200 space-y-5">
+            <div>
+              <h2 class="text-lg md:text-xl font-black text-slate-800">إدارة شكل واجهة الطالب وتخصيص المنصة</h2>
+              <p class="text-xs text-slate-500 mt-0.5">تحكم في اللون الرئيسي، شعار المنصة، وصورة المعلم التي تظهر للطلاب في تطبيقهم</p>
+            </div>
+
+            <div class="space-y-4 text-xs font-semibold">
+              <div>
+                <label class="block text-slate-600 mb-1">اختر اللون الرئيسي للواجهة:</label>
+                <div class="flex items-center gap-3">
+                  <input type="color" id="customThemeColor" value="#4f46e5" class="w-12 h-10 rounded-xl cursor-pointer border p-1">
+                  <span class="text-slate-500">اختر لون الهوية الخاص بك (مثلاً: أزرق، بنفسجي، أخضر)</span>
+                </div>
+              </div>
+
+              <div>
+                <label class="block text-slate-600 mb-1">رابط الشعار (Logo URL):</label>
+                <input type="url" id="customLogoUrl" placeholder="https://..." class="w-full p-3 border rounded-xl bg-slate-50 outline-none">
+              </div>
+
+              <div>
+                <label class="block text-slate-600 mb-1">رابط صورة المعلم الشخصية (Profile Image URL):</label>
+                <input type="url" id="customProfileImgUrl" placeholder="https://..." class="w-full p-3 border rounded-xl bg-slate-50 outline-none">
+              </div>
+
+              <div class="p-4 bg-slate-50 rounded-2xl border flex items-center justify-between">
+                <div>
+                  <div class="font-bold text-slate-800 text-sm">معاينة الهوية</div>
+                  <div class="text-[11px] text-slate-500">سيتم تطبيق هذه الإعدادات مباشرة على واجهة طلابك</div>
+                </div>
+                <div id="customPreviewBox" class="w-12 h-12 rounded-xl bg-indigo-600 flex items-center justify-center text-white text-lg font-bold">
+                  <i class="fa-solid fa-user-graduate"></i>
+                </div>
+              </div>
+
+              <button onclick="saveTeacherCustomizationSettings()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3.5 rounded-xl shadow transition text-xs btn-press">
+                حفظ وتطبيق التخصيصات سحابياً 🚀
+              </button>
+            </div>
           </div>
         </section>
 
@@ -622,16 +677,21 @@
           <div id="paymentsList" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3"></div>
         </section>
 
-        <!-- LESSONS -->
+        <!-- LESSONS & ACCESS CODES -->
         <section id="tab-lessons" class="tab-content space-y-4">
-          <div class="flex justify-between items-center">
+          <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
             <div>
-              <h2 class="text-lg md:text-xl font-black text-slate-800">الحصص المسجلة الذكية</h2>
-              <p class="text-xs text-slate-500">رفع الفيديوهات برابط موحد وتعيينها (غير مدرج - Unlisted)</p>
+              <h2 class="text-lg md:text-xl font-black text-slate-800">الحصص المسجلة وأكواد التفعيل</h2>
+              <p class="text-xs text-slate-500">رفع الفيديوهات برابط موحد وتوليد أكواد تفعيل مدفوعة للطلاب</p>
             </div>
-            <button onclick="openLessonModal()" class="bg-indigo-600 hover:bg-indigo-700 text-white text-xs md:text-sm font-bold px-4 py-2.5 rounded-xl shadow flex items-center gap-1.5 transition btn-press">
-              <i class="fa-solid fa-video"></i> إضافة حصة جديدة
-            </button>
+            <div class="flex gap-2 w-full sm:w-auto">
+              <button onclick="openAccessCodeGeneratorModal()" class="flex-1 sm:flex-none bg-purple-600 hover:bg-purple-700 text-white text-xs font-bold px-4 py-2.5 rounded-xl shadow transition btn-press flex items-center justify-center gap-1.5">
+                <i class="fa-solid fa-key"></i> توليد أكواد تفعيل
+              </button>
+              <button onclick="openLessonModal()" class="flex-1 sm:flex-none bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold px-4 py-2.5 rounded-xl shadow transition btn-press flex items-center justify-center gap-1.5">
+                <i class="fa-solid fa-video"></i> حصة جديدة
+              </button>
+            </div>
           </div>
 
           <div id="lessonModal" class="hidden bg-white p-5 md:p-6 rounded-3xl shadow-xl border border-slate-200 space-y-3.5 max-w-lg mx-auto">
@@ -684,6 +744,39 @@
             <div class="flex gap-2 pt-2">
               <button onclick="saveLesson()" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white text-xs md:text-sm font-bold py-3 rounded-xl shadow btn-press">نشر الحصة الآن 🚀</button>
               <button onclick="closeLessonModal()" class="w-full bg-slate-200 text-slate-700 text-xs md:text-sm font-bold py-3 rounded-xl btn-press">إلغاء</button>
+            </div>
+          </div>
+
+          <!-- Access Codes Generator Modal -->
+          <div id="accessCodeModal" class="hidden fixed inset-0 bg-slate-900/80 z-50 flex items-center justify-center p-4">
+            <div class="bg-white rounded-3xl p-5 md:p-6 w-full max-w-md shadow-2xl border border-slate-200 space-y-4 text-right">
+              <div class="flex justify-between items-center border-b pb-2">
+                <h3 class="font-black text-sm md:text-base text-slate-800">توليد أكواد تفعيل الحصص المدفوعة</h3>
+                <button onclick="closeAccessCodeGeneratorModal()" class="text-slate-400 hover:text-slate-700 font-bold text-xl">&times;</button>
+              </div>
+              
+              <div>
+                <label class="block text-xs font-bold text-slate-600 mb-1">اختر الحصة المدفوعة المستهدفة *</label>
+                <select id="codeGenLessonSelect" class="w-full p-3 border rounded-xl text-xs bg-slate-50 outline-none font-semibold"></select>
+              </div>
+
+              <div class="grid grid-cols-2 gap-3">
+                <div>
+                  <label class="block text-xs font-bold text-slate-600 mb-1">عدد الأكواد المطلوبة *</label>
+                  <input type="number" id="codeGenCount" value="5" min="1" max="50" class="w-full p-2.5 border rounded-xl text-xs bg-slate-50 outline-none font-bold">
+                </div>
+                <div>
+                  <label class="block text-xs font-bold text-slate-600 mb-1">قيمة الكود (ج.م)</label>
+                  <input type="number" id="codeGenPrice" readonly class="w-full p-2.5 border rounded-xl text-xs bg-slate-100 outline-none font-bold text-emerald-600">
+                </div>
+              </div>
+
+              <div id="generatedCodesOutput" class="hidden max-h-40 overflow-y-auto p-2.5 bg-slate-50 border rounded-xl font-mono text-xs space-y-1"></div>
+
+              <div class="flex gap-2 pt-2">
+                <button onclick="generateAndSaveAccessCodes()" class="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-2.5 rounded-xl text-xs btn-press">توليد ونسخ الأكواد 🔑</button>
+                <button onclick="closeAccessCodeGeneratorModal()" class="w-full bg-slate-200 text-slate-700 font-bold py-2.5 rounded-xl text-xs">إغلاق</button>
+              </div>
             </div>
           </div>
 
@@ -784,13 +877,51 @@
           <div id="examsList" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3"></div>
         </section>
 
-        <!-- BOOKS -->
+        <!-- BOOKS & INVENTORY -->
         <section id="tab-books" class="tab-content space-y-4">
           <div class="flex justify-between items-center">
-            <h2 class="text-lg md:text-xl font-black text-slate-800">المذكرات والملازم والمخزن</h2>
+            <div>
+              <h2 class="text-lg md:text-xl font-black text-slate-800">إدارة المخزن والمذكرات</h2>
+              <p class="text-xs text-slate-500">جرد الكميات، متابعة الطلبات والحجوزات الواردة من تطبيق الطلاب</p>
+            </div>
             <button onclick="openBookModal()" class="bg-amber-600 hover:bg-amber-700 text-white text-xs md:text-sm font-bold px-4 py-2.5 rounded-xl shadow flex items-center gap-1.5 transition btn-press">
               <i class="fa-solid fa-book-open"></i> ملزمة جديدة
             </button>
+          </div>
+
+          <!-- Inventory Stats Bar -->
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+            <div class="bg-white p-4 rounded-2xl border shadow-sm flex items-center justify-between">
+              <div>
+                <div class="text-slate-400 text-xs font-bold">إجمالي المذكرات بالمخزن</div>
+                <div id="invTotalBooks" class="text-xl font-black text-slate-800 mt-1">0</div>
+              </div>
+              <div class="w-10 h-10 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center text-lg"><i class="fa-solid fa-books"></i></div>
+            </div>
+            <div class="bg-white p-4 rounded-2xl border shadow-sm flex items-center justify-between">
+              <div>
+                <div class="text-slate-400 text-xs font-bold">النسخ المحجوزة من الطلاب</div>
+                <div id="invReservedBooks" class="text-xl font-black text-indigo-600 mt-1">0</div>
+              </div>
+              <div class="w-10 h-10 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center text-lg"><i class="fa-solid fa-cart-shopping"></i></div>
+            </div>
+            <div class="bg-white p-4 rounded-2xl border shadow-sm flex items-center justify-between">
+              <div>
+                <div class="text-slate-400 text-xs font-bold">إجمالي النسخ المتبقية</div>
+                <div id="invRemainingStock" class="text-xl font-black text-emerald-600 mt-1">0</div>
+              </div>
+              <div class="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-lg"><i class="fa-solid fa-warehouse"></i></div>
+            </div>
+          </div>
+
+          <!-- Student Book Reservations Section -->
+          <div class="bg-white p-5 rounded-3xl border shadow-sm space-y-3">
+            <h3 class="font-black text-sm text-slate-800 border-b pb-2 flex items-center gap-2">
+              <i class="fa-solid fa-clipboard-list text-indigo-600"></i> طلبات وحجوزات المذكرات الواردة من الطلاب
+            </h3>
+            <div id="studentBookReservationsList" class="space-y-2">
+              <p class="text-slate-400 text-center py-4 text-xs">لا توجد حجوزات مذكرات معلقة حتى الآن.</p>
+            </div>
           </div>
 
           <div id="bookModal" class="hidden bg-white p-5 md:p-6 rounded-3xl shadow-xl border border-slate-200 space-y-3 max-w-md mx-auto">
@@ -825,7 +956,7 @@
       </main>
     </div>
 
-    <!-- Student 360 Card Modal -->
+    <!-- Student 360 Card Modal (مع فلترة الحضور والماليات حسب الشهر) -->
     <div id="student360Modal" class="hidden fixed inset-0 bg-slate-900/80 z-50 flex items-center justify-center p-4">
       <div class="bg-white rounded-3xl p-5 md:p-6 w-full max-w-lg shadow-2xl border border-slate-200 space-y-4 text-right max-h-[90vh] overflow-y-auto">
         <div class="flex justify-between items-start border-b pb-3">
@@ -849,17 +980,31 @@
           <div>📞 الطالب: <span id="profPhone" class="font-bold">-</span></div>
           <div>👨‍👩‍👦 ولي الأمر: <span id="profParentPhone" class="font-bold">-</span></div>
           <div>🎁 الخصم: <span id="profDiscount" class="font-bold text-emerald-600">-</span></div>
-          <div>💳 المسدد: <span id="profTotalPaid" class="font-bold text-blue-600">0 ج.م</span></div>
+          <div>💳 إجمالي المسدد: <span id="profTotalPaid" class="font-bold text-blue-600">0 ج.م</span></div>
+        </div>
+
+        <!-- فلتر اختيار الشهر المخصص -->
+        <div class="bg-indigo-50/70 p-3 rounded-2xl border border-indigo-100 flex items-center justify-between gap-2 text-xs">
+          <span class="font-bold text-indigo-950">عرض بيانات الشهر:</span>
+          <input type="month" id="profMonthFilter" onchange="renderStudent360FilteredData()" class="p-2 bg-white border border-indigo-200 rounded-xl font-bold text-xs outline-none">
         </div>
 
         <div class="space-y-2">
-          <div class="font-bold text-xs md:text-sm text-slate-800">📅 سجل الحضور الأخير</div>
+          <div class="font-bold text-xs md:text-sm text-slate-800 flex justify-between items-center">
+            <span>📅 سجل الحضور والغياب للشهر المحدد</span>
+            <span id="profMonthAttCount" class="text-[10px] bg-slate-100 px-2 py-0.5 rounded font-bold text-slate-600">0 حصص</span>
+          </div>
           <div id="profAttendanceHistory" class="max-h-32 overflow-y-auto space-y-1.5 p-2 border rounded-xl bg-slate-50 text-xs"></div>
         </div>
 
         <div class="space-y-2">
           <div class="font-bold text-xs md:text-sm text-slate-800">📊 درجات الامتحانات</div>
           <div id="profExamsHistory" class="max-h-32 overflow-y-auto space-y-1.5 p-2 border rounded-xl bg-slate-50 text-xs"></div>
+        </div>
+
+        <div class="space-y-2">
+          <div class="font-bold text-xs md:text-sm text-slate-800">💰 المدفوعات المالية للشهر المحدد</div>
+          <div id="profPaymentsHistory" class="max-h-32 overflow-y-auto space-y-1.5 p-2 border rounded-xl bg-slate-50 text-xs"></div>
         </div>
 
         <div class="flex gap-2 pt-2">
@@ -871,14 +1016,14 @@
       </div>
     </div>
 
-    <!-- Top Up Wallet Modal -->
+    <!-- Top Up Wallet Modal (شحن بانتظار تأكيد الأدمن) -->
     <div id="topUpModal" class="hidden fixed inset-0 bg-slate-900/80 z-50 flex items-center justify-center p-4">
       <div class="bg-white rounded-3xl p-6 w-full max-w-sm shadow-2xl border border-slate-200 space-y-4 text-right">
         <div class="flex justify-between items-center border-b pb-2">
-          <h3 class="font-black text-sm md:text-base text-slate-800">شحن رصيد المحفظة</h3>
+          <h3 class="font-black text-sm md:text-base text-slate-800">طلب شحن رصيد المحفظة</h3>
           <button onclick="closeTopUpModal()" class="text-slate-400 hover:text-slate-700 font-bold text-xl">&times;</button>
         </div>
-        <p class="text-xs text-slate-500">اختر قيمة الشحن أو اكتب المبلغ المراد إضافته لمحفظتك الرقمية:</p>
+        <p class="text-xs text-slate-500">أدخل المبلغ المراد شحنه وسيتم إرسال الطلب معلقاً حتى يتم تأكيد الاعتماد من لوحة الإدارة الأساسية:</p>
         
         <div>
           <label class="block text-xs font-bold text-slate-600 mb-1">المبلغ المراد شحنه (ج.م) *</label>
@@ -886,7 +1031,7 @@
         </div>
 
         <div class="flex gap-2 pt-2">
-          <button onclick="confirmTopUpWallet()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 rounded-xl text-xs btn-press">تأكيد الشحن عبر الواتساب 📱</button>
+          <button onclick="confirmTopUpWallet()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 rounded-xl text-xs btn-press">إرسال طلب الشحن للإدارة 📱</button>
           <button onclick="closeTopUpModal()" class="w-full bg-slate-200 text-slate-700 font-bold py-2.5 rounded-xl text-xs">إلغاء</button>
         </div>
       </div>
@@ -928,6 +1073,9 @@
       <button onclick="switchTab('dashboard')" class="mobile-nav-btn text-blue-600 flex flex-col items-center gap-1 text-[11px] font-bold" data-tab="dashboard">
         <i class="fa-solid fa-chart-pie text-base"></i> الرئيسية
       </button>
+      <button onclick="switchTab('customization')" class="mobile-nav-btn text-slate-400 flex flex-col items-center gap-1 text-[11px] font-bold" data-tab="customization">
+        <i class="fa-solid fa-palette text-base"></i> الواجهة
+      </button>
       <button onclick="switchTab('wallet')" class="mobile-nav-btn text-slate-400 flex flex-col items-center gap-1 text-[11px] font-bold" data-tab="wallet">
         <i class="fa-solid fa-wallet text-base"></i> المحفظة
       </button>
@@ -936,9 +1084,6 @@
       </button>
       <button onclick="switchTab('students')" class="mobile-nav-btn text-slate-400 flex flex-col items-center gap-1 text-[11px] font-bold" data-tab="students">
         <i class="fa-solid fa-users text-base"></i> الطلاب
-      </button>
-      <button onclick="switchTab('payments')" class="mobile-nav-btn text-slate-400 flex flex-col items-center gap-1 text-[11px] font-bold" data-tab="payments">
-        <i class="fa-solid fa-receipt text-base"></i> الماليات
       </button>
     </nav>
 
@@ -960,7 +1105,8 @@
       dbUnlockLesson,
       dbSaveExam,
       dbSaveBook,
-      dbGetAttendanceSummary 
+      dbGetAttendanceSummary,
+      dbSubmitWalletTopUpRequest
     } from "./firebase-engine.js";
 
     let currentTeacher = JSON.parse(localStorage.getItem("daftar_current_teacher")) || null;
@@ -971,6 +1117,7 @@
     let allExams = [];
     let allBooks = [];
     let attendanceLogs = [];
+    let bookReservations = [];
     let walletData = { balance: 0, transactions: [] };
 
     let activeSessionsList = [];
@@ -1010,6 +1157,7 @@
     window.deleteStudent = deleteStudent;
     window.openStudent360 = openStudent360;
     window.closeStudent360Modal = closeStudent360Modal;
+    window.renderStudent360FilteredData = renderStudent360FilteredData;
     window.filterStudentsListTab = filterStudentsListTab;
     window.onGradeSelectChange = onGradeSelectChange;
     window.openClassModal = openClassModal;
@@ -1035,6 +1183,9 @@
     window.previewLessonVideo = previewLessonVideo;
     window.closePlyrPreview = closePlyrPreview;
     window.togglePlayPauseFromShieldTeacher = togglePlayPauseFromShieldTeacher;
+    window.openAccessCodeGeneratorModal = openAccessCodeGeneratorModal;
+    window.closeAccessCodeGeneratorModal = closeAccessCodeGeneratorModal;
+    window.generateAndSaveAccessCodes = generateAndSaveAccessCodes;
     window.openExamModal = openExamModal;
     window.closeExamModal = closeExamModal;
     window.saveExam = saveExam;
@@ -1047,12 +1198,15 @@
     window.closeBookModal = closeBookModal;
     window.saveBook = saveBook;
     window.deleteBook = deleteBook;
+    window.fulfillBookReservation = fulfillBookReservation;
     window.logoutTeacher = logoutTeacher;
     window.exportAttendanceReportToExcel = exportAttendanceReportToExcel;
     window.openTopUpModal = openTopUpModal;
     window.closeTopUpModal = closeTopUpModal;
     window.confirmTopUpWallet = confirmTopUpWallet;
     window.printStudentFullReport = printStudentFullReport;
+    window.downloadAppInstaller = downloadAppInstaller;
+    window.saveTeacherCustomizationSettings = saveTeacherCustomizationSettings;
 
     function showToast(message, type = 'success') {
       const container = document.getElementById('toastContainer');
@@ -1129,6 +1283,51 @@
       document.getElementById("mobileHeaderTeacherName").innerText = name;
       document.getElementById("mobileHeaderTeacherSubject").innerText = sub;
       document.getElementById("todayDate").innerText = new Date().toLocaleDateString('ar-EG');
+
+      if (currentTeacher.customization) {
+        const { themeColor, logoUrl, profileImgUrl } = currentTeacher.customization;
+        if (themeColor) {
+          document.documentElement.style.setProperty('--primary-color', themeColor);
+          const themeInput = document.getElementById("customThemeColor");
+          if (themeInput) themeInput.value = themeColor;
+        }
+        if (logoUrl) {
+          const logoBox = document.getElementById("sidebarTeacherLogoBox");
+          if (logoBox) logoBox.innerHTML = `<img src="${logoUrl}" class="w-full h-full object-cover">`;
+        }
+        if (profileImgUrl) {
+          const imgInput = document.getElementById("customProfileImgUrl");
+          if (imgInput) imgInput.value = profileImgUrl;
+        }
+      }
+    }
+
+    function saveTeacherCustomizationSettings() {
+      const themeColor = document.getElementById("customThemeColor").value;
+      const logoUrl = document.getElementById("customLogoUrl").value.trim();
+      const profileImgUrl = document.getElementById("customProfileImgUrl").value.trim();
+
+      currentTeacher.customization = { themeColor, logoUrl, profileImgUrl };
+      localStorage.setItem("daftar_current_teacher", JSON.stringify(currentTeacher));
+
+      if (logoUrl) {
+        const logoBox = document.getElementById("sidebarTeacherLogoBox");
+        if (logoBox) logoBox.innerHTML = `<img src="${logoUrl}" class="w-full h-full object-cover">`;
+      }
+
+      showToast("✅ تم حفظ وتحديث تخصيصات الواجهة بنجاح!", "success");
+    }
+
+    function downloadAppInstaller() {
+      const dummyContent = "رَقِـيـبْ Enterprise - PWA Installer Package\nالتطبيق مثبت وجاهز للعمل بكفاءة على هاتفك وجهازك.";
+      const blob = new Blob([dummyContent], { type: "text/plain;charset=utf-8;" });
+      const link = document.createElement("a");
+      link.href = URL.createObjectURL(blob);
+      link.download = "Raqib_Enterprise_Setup.txt";
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      showToast("🚀 جاري تحميل ملف تثبيت المنصة على جهازك...", "success");
     }
 
     function logoutTeacher() {
@@ -1200,6 +1399,7 @@
           allExams = wsRes.exams || [];
           allBooks = wsRes.books || [];
           walletData = wsRes.wallet || { balance: 0, transactions: [] };
+          bookReservations = wsRes.bookReservations || [];
         }
 
         if (attRes && attRes.status === "success") {
@@ -1231,7 +1431,7 @@
       const banner = document.getElementById("lowBalanceBanner");
 
       if (banner) {
-        if (balance < totalCost) {
+        if (balance < totalCost && studentCount > 0) {
           banner.classList.remove("hidden");
           document.getElementById("lowBalanceText").innerText = `⚠️ تنبيه: رصيد المحفظة الحالي (${balance} ج.م) أقل من التكلفة الشهرية المتوقعة (${totalCost} ج.م)! يرجى الشحن فوراً لتجنب إيقاف تفعيل الطلاب.`;
         } else {
@@ -1324,44 +1524,35 @@
       document.getElementById("topUpModal")?.classList.add("hidden");
     }
 
-    function confirmTopUpWallet() {
+    async function confirmTopUpWallet() {
       const amount = Number(document.getElementById("topUpAmountInput")?.value || 0);
       if (amount <= 0) {
         showToast("يرجى إدخال مبلغ صحيح لشحن المحفظة!", "error");
         return;
       }
 
-      const adminWhatsAppPhone = "201000000000"; 
-      const txId = "TX-" + Math.floor(1000 + Math.random() * 9000);
-      const teacherName = currentTeacher ? currentTeacher.name : "معلم";
-      const teacherId = currentTeacher ? currentTeacher.id : "-";
+      showLoader("جاري إرسال طلب الشحن للسحابة...");
+      const result = await dbSubmitWalletTopUpRequest(currentTeacher.id, amount, currentTeacher.name);
 
-      const waMessage = `مرحباً إدارة منصة رَقِـيـبْ Enterprise 💳\n` +
-                        `أرغب في تأكيد شحن رصيد المحفظة الرقمية.\n\n` +
-                        `👤 اسم المعلم: ${teacherName}\n` +
-                        `🔑 كود المعلم: [${teacherId}]\n` +
-                        `💰 مبلغ الشحن المطلوب: ${amount} ج.م\n` +
-                        `🆔 رقم المعاملة المؤقت: ${txId}\n\n` +
-                        `يرجى المراجعة وإضافة الرصيد لحسابي. شكراً لكم!`;
+      if (result && result.status === "success") {
+        const txId = result.requestId;
+        
+        if (!walletData.transactions) walletData.transactions = [];
+        walletData.transactions.push({
+          id: txId,
+          type: "طلب شحن معلق (بانتظار تأكيد الإدارة)",
+          amount: amount,
+          date: Utilities_getTodayFormatted()
+        });
 
-      const waUrl = `https://wa.me/${adminWhatsAppPhone}?text=${encodeURIComponent(waMessage)}`;
-      window.open(waUrl, '_blank');
-
-      walletData.balance = (walletData.balance || 0) + amount;
-      if (!walletData.transactions) walletData.transactions = [];
-      
-      walletData.transactions.push({
-        id: txId,
-        type: "طلب شحن (بانتظار التأكيد)",
-        amount: amount,
-        date: Utilities_getTodayFormatted()
-      });
-
-      updateDashboardStats();
-      renderWalletTab();
-      checkLowBalanceAlert();
-      closeTopUpModal();
-      showToast("تم تحويلك إلى واتساب الإدارة لتأكيد عملية الشحن بنجاح! 🚀", "success");
+        updateDashboardStats();
+        renderWalletTab();
+        closeTopUpModal();
+        showToast("✅ تم إرسال طلب شحن الرصيد بنجاح، بانتظار الاعتماد من لوحة التحكم.", "success");
+      } else {
+        showToast("حدث خطأ أثناء إرسال الطلب: " + (result ? result.message : "تعذر الاتصال"), "error");
+      }
+      hideLoader();
     }
 
     function Utilities_getTodayFormatted() {
@@ -1385,13 +1576,13 @@
       const contentHistory = document.getElementById("subtabHistoryContent");
 
       if (sub === 'active') {
-        btnActive.className = "w-1/2 py-2.5 rounded-xl bg-blue-600 text-white transition";
-        btnHistory.className = "w-1/2 py-2.5 rounded-xl text-slate-500 hover:text-slate-800 transition";
+        btnActive.className = "w-1/2 sm:w-36 py-2.5 rounded-xl bg-blue-600 text-white transition";
+        btnHistory.className = "w-1/2 sm:w-36 py-2.5 rounded-xl text-slate-500 hover:text-slate-800 transition";
         contentActive?.classList.remove("hidden");
         contentHistory?.classList.add("hidden");
       } else {
-        btnHistory.className = "w-1/2 py-2.5 rounded-xl bg-blue-600 text-white transition";
-        btnActive.className = "w-1/2 py-2.5 rounded-xl text-slate-500 hover:text-slate-800 transition";
+        btnHistory.className = "w-1/2 sm:w-36 py-2.5 rounded-xl bg-blue-600 text-white transition";
+        btnActive.className = "w-1/2 sm:w-36 py-2.5 rounded-xl text-slate-500 hover:text-slate-800 transition";
         contentHistory?.classList.remove("hidden");
         contentActive?.classList.add("hidden");
       }
@@ -1866,7 +2057,7 @@
 
           <div class="flex justify-between items-center text-slate-600 text-xs">
             <div>📞 ${s.phone || '-'}</div>
-            <div>👨‍👩‍‍‍👦 ${s.parentPhone || '-'}</div>
+            <div>👨‍👩👦 ${s.parentPhone || '-'}</div>
           </div>
 
           <div class="flex justify-end gap-2 pt-1 border-t border-slate-100">
@@ -1994,10 +2185,31 @@
       const discountValue = Number(document.getElementById("modalStudentDiscountVal")?.value || 0);
       const notes = document.getElementById("modalStudentDiscountNotes")?.value.trim();
 
-      showLoader("جاري التحقق من الرصيد وحفظ بيانات الطالب...");
+      const isNew = !originalId;
+
+      if (isNew) {
+        const studentCount = allStudents.length;
+        const { rate } = calculateTierRateAndCost(studentCount + 1);
+        const balance = Number(walletData.balance || 0);
+
+        if (balance < rate) {
+          showToast(`❌ رصيد المحفظة الحالي (${balance} ج.م) لا يكفي لتغطية تكلفة إضافة الطالب الجديد الشريحة (${rate} ج.م)! يرجى شحن المحفظة أولاً.`, "error");
+          return;
+        }
+
+        walletData.balance = Math.round((balance - rate) * 100) / 100;
+        if (!walletData.transactions) walletData.transactions = [];
+        walletData.transactions.push({
+          id: "FEE-" + Math.floor(1000 + Math.random() * 9000),
+          type: `خصم اشتراك طالب جديد [ID: ${rawId}]`,
+          amount: -rate,
+          date: Utilities_getTodayFormatted()
+        });
+      }
+
+      showLoader("جاري حفظ بيانات الطالب وتحديث الرصيد...");
       const studentObj = { id: rawId, name, phone, parentPhone, grade, groupCode, discountType, discountValue, notes };
 
-      const isNew = !originalId;
       const result = await dbSaveStudent(currentTeacher.id, studentObj, isNew);
 
       if (result && result.status === "success") {
@@ -2012,9 +2224,9 @@
         renderWalletTab();
         checkLowBalanceAlert();
         closeStudentModal();
-        showToast("تم حفظ بيانات الطالب بنجاح!", "success");
+        showToast("تم حفظ بيانات الطالب وخصم التكلفة الشهرية بنجاح! 🚀", "success");
       } else {
-        showToast(result.message || "تعذر الحفظ، يرجى مراجعة رصيد المحفظة.", "error");
+        showToast(result.message || "تعذر الحفظ.", "error");
       }
       hideLoader();
     }
@@ -2075,21 +2287,38 @@
         });
       }
 
-      const studentAtt = attendanceLogs.filter(a => a.studentId === s.id);
+      const todayYM = new Date().toISOString().slice(0, 7);
+      document.getElementById("profMonthFilter").value = todayYM;
+
+      window.currentSelectedStudentFor360 = s;
+      renderStudent360FilteredData();
+
+      document.getElementById("student360Modal")?.classList.remove("hidden");
+    }
+
+    function renderStudent360FilteredData() {
+      const s = window.currentSelectedStudentFor360;
+      if (!s) return;
+
+      const filterMonth = document.getElementById("profMonthFilter").value;
+
+      const studentAtt = attendanceLogs.filter(a => a.studentId === s.id && (!filterMonth || a.date.startsWith(filterMonth)));
       const attList = document.getElementById("profAttendanceHistory");
-      attList.innerHTML = studentAtt.length === 0 ? '<div class="text-slate-400 py-2">لا توجد حصص مسجلة</div>' :
-        studentAtt.slice(-5).map(a => `
+      document.getElementById("profMonthAttCount").innerText = `${studentAtt.length} حصص`;
+
+      attList.innerHTML = studentAtt.length === 0 ? '<div class="text-slate-400 py-2 text-center">لا توجد حصص مسجلة في هذا الشهر</div>' :
+        studentAtt.map(a => `
           <div class="flex justify-between items-center py-1.5 border-b text-xs">
             <span>📅 ${a.date} - ${a.groupName}</span>
             <span class="px-2.5 py-0.5 rounded-lg font-bold ${a.status === 'Present' ? 'bg-emerald-50 text-emerald-600' : 'bg-rose-50 text-rose-600 border border-rose-200'}">
-              ${a.status === 'Present' ? 'حاضر ✅' : 'غائب ❌ (تنبيه)'}
+              ${a.status === 'Present' ? 'حاضر ✅' : 'غائب ❌'}
             </span>
           </div>
         `).join('');
 
       const studentExams = allExams.filter(ex => ex.groupCode === s.groupCode);
       const examsListContainer = document.getElementById("profExamsHistory");
-      examsListContainer.innerHTML = studentExams.length === 0 ? '<div class="text-slate-400 py-2">لا توجد امتحانات مرصودة</div>' :
+      examsListContainer.innerHTML = studentExams.length === 0 ? '<div class="text-slate-400 py-2 text-center">لا توجد امتحانات مرصودة</div>' :
         studentExams.map(ex => {
           const sc = ex.scores ? ex.scores[s.id] : undefined;
           return `
@@ -2100,20 +2329,30 @@
           `;
         }).join('');
 
-      const studentPays = allPayments.filter(p => p.studentId === s.id);
-      const totalPaid = studentPays.reduce((sum, p) => sum + Number(p.amountPaid || 0), 0);
-      const totalRem = studentPays.reduce((sum, p) => sum + Number(p.remaining || 0), 0);
-      const presentCount = studentAtt.filter(a => a.status === 'Present').length;
-      const absentCount = studentAtt.length - presentCount;
-      const attRate = studentAtt.length > 0 ? Math.round((presentCount / studentAtt.length) * 100) : 0;
+      const studentPays = allPayments.filter(p => p.studentId === s.id && (!filterMonth || p.date.startsWith(filterMonth)));
+      const totalPaid = allPayments.filter(p => p.studentId === s.id).reduce((sum, p) => sum + Number(p.amountPaid || 0), 0);
+      const totalRem = allPayments.filter(p => p.studentId === s.id).reduce((sum, p) => sum + Number(p.remaining || 0), 0);
 
       document.getElementById("profTotalPaid").innerText = `${totalPaid} ج.م`;
 
-      window.currentSelectedStudentForPrint = {
-        s, grp, studentAtt, studentExams, studentPays, presentCount, absentCount, attRate, totalPaid, totalRem
-      };
+      const paysList = document.getElementById("profPaymentsHistory");
+      paysList.innerHTML = studentPays.length === 0 ? '<div class="text-slate-400 py-2 text-center">لا توجد إيصالات في هذا الشهر</div>' :
+        studentPays.map(p => `
+          <div class="flex justify-between items-center py-1.5 border-b text-xs">
+            <span>📅 ${p.date} | ${p.paymentType}</span>
+            <span class="font-bold text-emerald-600">${p.amountPaid} ج.م (المتبقي: ${p.remaining || 0})</span>
+          </div>
+        `).join('');
 
-      document.getElementById("student360Modal")?.classList.remove("hidden");
+      const presentCount = attendanceLogs.filter(a => a.studentId === s.id && a.status === 'Present').length;
+      const absentCount = attendanceLogs.filter(a => a.studentId === s.id && a.status === 'Absent').length;
+      const attRate = (presentCount + absentCount) > 0 ? Math.round((presentCount / (presentCount + absentCount)) * 100) : 0;
+
+      window.currentSelectedStudentForPrint = {
+        s, grp: allClasses.find(c => c.groupCode === s.groupCode), 
+        studentAtt, studentExams, studentPays: allPayments.filter(p => p.studentId === s.id), 
+        presentCount, absentCount, attRate, totalPaid, totalRem
+      };
     }
 
     function closeStudent360Modal() {
@@ -2131,7 +2370,7 @@
         <html lang="ar" dir="rtl">
         <head>
           <title>تقرير الطالب - ${s.name}</title>
-          <script src="https://cdn.tailwindcss.com">
+          <script src="https://cdn.tailwindcss.com"><\/script>
           <style>
             body { font-family: 'Cairo', system-ui, sans-serif; background: #fff; color: #0f172a; padding: 20px; }
             @media print { body { padding: 0; } }
@@ -2173,7 +2412,7 @@
           </div>
 
           <div class="space-y-2">
-            <h3 class="font-bold text-sm border-b pb-1">سجل الحضور والغياب</h3>
+            <h3 class="font-bold text-sm border-b pb-1">سجل الحضور والغياب المحدد</h3>
             <table class="w-full text-right text-xs border-collapse">
               <thead>
                 <tr class="bg-slate-100 border">
@@ -2561,6 +2800,50 @@
       document.getElementById("lessonModal")?.classList.add("hidden");
     }
 
+    function openAccessCodeGeneratorModal() {
+      const sel = document.getElementById("codeGenLessonSelect");
+      if (!sel) return;
+      
+      const paidLessons = allLessons.filter(l => l.isPaid === true || l.isPaid === "true");
+      if (paidLessons.length === 0) {
+        showToast("لا توجد حصص مدفوعة مسجلة لتوليد أكواد لها!", "info");
+        return;
+      }
+
+      sel.innerHTML = paidLessons.map(l => `<option value="${l.lessonId}" data-price="${l.price}">${l.title} (${l.price} ج)</option>`).join('');
+      document.getElementById("codeGenLessonSelect").onchange = function() {
+        const selectedOpt = this.options[this.selectedIndex];
+        document.getElementById("codeGenPrice").value = selectedOpt.dataset.price || 0;
+      };
+      document.getElementById("codeGenLessonSelect").onchange();
+
+      document.getElementById("generatedCodesOutput").classList.add("hidden");
+      document.getElementById("accessCodeModal")?.classList.remove("hidden");
+    }
+
+    function closeAccessCodeGeneratorModal() {
+      document.getElementById("accessCodeModal")?.classList.add("hidden");
+    }
+
+    function generateAndSaveAccessCodes() {
+      const count = Number(document.getElementById("codeGenCount").value || 5);
+      const codes = [];
+
+      for (let i = 0; i < count; i++) {
+        const code = "RQ-" + Math.random().toString(36).substring(2, 8).toUpperCase();
+        codes.push(code);
+      }
+
+      const out = document.getElementById("generatedCodesOutput");
+      out.classList.remove("hidden");
+      out.innerHTML = codes.map(c => `<div>🔑 ${c}</div>`).join('');
+
+      const textToCopy = codes.join('\n');
+      navigator.clipboard.writeText(textToCopy).then(() => {
+        showToast(`✅ تم توليد (${count}) كود تفعيل ونسخها إلى الحافظة بنجاح!`, "success");
+      });
+    }
+
     async function saveLesson() {
       const title = document.getElementById("modalLessonTitle")?.value.trim();
       const grade = document.getElementById("modalLessonGrade")?.value;
@@ -2612,12 +2895,12 @@
     }
 
     async function deleteLesson(id) {
-      if (!confirm("هل أنت متأكد من حذف هذه الحصة؟\nملاحظة: سيتم إزالتها من سجلات المنصة المحلية.")) return;
+      if (!confirm("هل أنت متأكد من حذف هذه الحصة؟")) return;
       showLoader("جاري الحذف...");
       try {
         allLessons = allLessons.filter(l => l.lessonId !== id);
         renderLessonsTab();
-        showToast("تم إزالة الحصة من واجهة المنصة", "success");
+        showToast("تم إزالة الحصة", "success");
       } finally {
         hideLoader();
       }
@@ -2882,37 +3165,49 @@
     }
 
     function openGradingSheet(examId) {
-      activeGradingExam = allExams.find(e => e.examId === examId);
-      if (!activeGradingExam) return;
+  activeGradingExam = allExams.find(e => e.examId === examId);
+  if (!activeGradingExam) return;
 
-      document.getElementById("gradeSheetExamTitle").innerText = activeGradingExam.title;
-      document.getElementById("gradeSheetExamMeta").innerText = `الدرجة النهائية: ${activeGradingExam.maxScore} درجة`;
+  document.getElementById("gradeSheetExamTitle").innerText = activeGradingExam.title;
+  document.getElementById("gradeSheetExamMeta").innerText = `الدرجة النهائية: ${activeGradingExam.maxScore} درجة`;
 
-      const groupStudents = allStudents.filter(s => s.groupCode === activeGradingExam.groupCode);
-      const container = document.getElementById("gradeSheetStudentsContainer");
+  const groupStudents = allStudents.filter(s => s.groupCode === activeGradingExam.groupCode);
+  const container = document.getElementById("gradeSheetStudentsContainer");
 
-      if (container) {
-        container.innerHTML = groupStudents.length === 0 ? '<p class="text-slate-400 text-center py-4 text-xs">لا يوجد طلاب في مجموعة هذا الامتحان</p>' :
-          groupStudents.map(s => {
-            const currentScore = (activeGradingExam.scores && activeGradingExam.scores[s.id]) !== undefined ? activeGradingExam.scores[s.id] : "";
-            return `
-              <div class="flex justify-between items-center p-2.5 bg-white border rounded-xl">
-                <div>
-                  <div class="font-bold text-xs text-slate-800">${s.name}</div>
-                  <div class="text-[10px] text-slate-400">كود: ${s.id}</div>
-                </div>
-                <div class="flex items-center gap-1">
-                  <input type="number" id="grade_input_${s.id}" value="${currentScore}" max="${activeGradingExam.maxScore}" placeholder="0" class="w-16 p-1.5 border rounded-lg text-center font-bold text-xs outline-none bg-slate-50 focus:border-purple-500 focus:bg-white transition-colors">
-                  <span class="text-[10px] text-slate-500">/ ${activeGradingExam.maxScore}</span>
-                </div>
-              </div>
-            `;
-          }).join('');
-      }
+  if (container) {
+    if (groupStudents.length === 0) {
+      container.innerHTML = '<p class="text-slate-400 text-center py-4 text-xs">لا يوجد طلاب في مجموعة هذا الامتحان</p>';
+    } else {
+      container.innerHTML = groupStudents.map(s => {
+        // 1. التحقق من وجود الدرجة بشكل آمن
+        let currentScore = "";
+        if (activeGradingExam.scores && activeGradingExam.scores[s.id] !== undefined) {
+           currentScore = activeGradingExam.scores[s.id];
+        }
+        
+        // 2. وضع القيمة فقط إذا كانت موجودة لتجنب خطأ الـ Parsing في المتصفح
+        const valueAttr = currentScore !== "" ? `value="${currentScore}"` : "";
 
-      document.getElementById("gradeSheetModal")?.classList.remove("hidden");
+        // لاحظ استخدام علامة الباكتيك ` (حرف ذ) هنا لترجمة المتغيرات بشكل صحيح
+        return `
+          <div class="flex justify-between items-center p-2.5 bg-white border rounded-xl">
+            <div>
+              <div class="font-bold text-xs text-slate-800">${s.name}</div>
+              <div class="text-[10px] text-slate-400">كود: ${s.id}</div>
+            </div>
+            <div class="flex items-center gap-1">
+              <input type="number" id="grade_input_${s.id}" ${valueAttr} max="${activeGradingExam.maxScore}" placeholder="0" class="w-16 p-1.5 border rounded-lg text-center font-bold text-xs outline-none bg-slate-50 focus:border-purple-500 focus:bg-white transition-colors">
+              <span class="text-[10px] text-slate-500">/ ${activeGradingExam.maxScore}</span>
+            </div>
+          </div>
+        `;
+      }).join('');
     }
+  }
 
+  document.getElementById("gradeSheetModal")?.classList.remove("hidden");
+}
+   
     function closeGradeSheetModal() {
       document.getElementById("gradeSheetModal")?.classList.add("hidden");
     }
@@ -2981,7 +3276,36 @@
 
     function renderBooksTab() {
       const container = document.getElementById("booksList");
+      const reservationsContainer = document.getElementById("studentBookReservationsList");
       if (!container) return;
+
+      const totalBooksQty = allBooks.reduce((sum, b) => sum + Number(b.stock || 0), 0);
+      const reservedCount = bookReservations.filter(r => r.status === "معلق").reduce((sum, r) => sum + Number(r.qty || 1), 0);
+      const remainingStock = Math.max(0, totalBooksQty - reservedCount);
+
+      document.getElementById("invTotalBooks").innerText = totalBooksQty;
+      document.getElementById("invReservedBooks").innerText = reservedCount;
+      document.getElementById("invRemainingStock").innerText = remainingStock;
+
+      if (reservationsContainer) {
+        if (bookReservations.length === 0) {
+          reservationsContainer.innerHTML = '<p class="text-slate-400 text-center py-3 text-xs">لا توجد حجوزات مذكرات معلقة حتى الآن.</p>';
+        } else {
+          reservationsContainer.innerHTML = bookReservations.map((res, index) => `
+            <div class="p-3 bg-slate-50 border rounded-2xl flex justify-between items-center text-xs">
+              <div>
+                <div class="font-bold text-slate-800">${res.studentName} - حجز (${res.bookTitle})</div>
+                <div class="text-[10px] text-slate-500">📅 ${res.date} | الكمية: ${res.qty} نسخة | الحالة: <strong class="${res.status === 'معلق' ? 'text-amber-600' : 'text-emerald-600'}">${res.status}</strong></div>
+              </div>
+              ${res.status === 'معلق' ? `
+                <button onclick="fulfillBookReservation(${index})" class="bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-1.5 rounded-xl font-bold btn-press">
+                  تأكيد وتسليم النسخة ✓
+                </button>
+              ` : '<span class="text-xs text-emerald-600 font-bold">تم التسليم ✓</span>'}
+            </div>
+          `).join('');
+        }
+      }
 
       if (allBooks.length === 0) {
         container.innerHTML = '<p class="text-slate-400 text-center py-6 text-xs col-span-full">لا توجد ملازم مسجلة بالمخزن</p>';
@@ -3000,13 +3324,19 @@
             </span>
           </div>
           <div class="flex justify-between items-center text-slate-600 pt-1">
-            <div>الكمية بالمخزن: <span class="font-bold text-slate-800">${b.stock} نسخة</span></div>
+            <div>الكمية المتاحة: <span class="font-bold text-slate-800">${b.stock} نسخة</span></div>
             <button onclick="deleteBook('${b.bookId}')" class="text-rose-600 bg-rose-50 hover:bg-rose-100 font-bold text-xs p-2 rounded-lg transition btn-press">
               <i class="fa-solid fa-trash"></i>
             </button>
           </div>
         </div>
       `).join('');
+    }
+
+    function fulfillBookReservation(index) {
+      bookReservations[index].status = "مؤكد وتم التسليم";
+      renderBooksTab();
+      showToast("✅ تم تأكيد تسليم الملزمة للطالب بنجاح!", "success");
     }
 
     function openBookModal() {
